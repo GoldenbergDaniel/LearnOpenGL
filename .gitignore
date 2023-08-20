@@ -4,5 +4,5 @@ debug/
 .idea/
 
 .DS_STORE
-./Renderer
-./libglad.dylib
+Renderer
+libglad.dylib
