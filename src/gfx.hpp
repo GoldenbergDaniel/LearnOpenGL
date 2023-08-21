@@ -26,37 +26,22 @@ struct Vec4F
   union { f32 w; f32 a; };
 };
 
-struct Shader
+struct GLObject
 {
   u32 id;
 };
 
-enum BufferType
-{
-  VERTEX,
-  INDEX
-};
-
-struct Buffer
-{
-  u32 id;
-  BufferType type;
-};
-
-struct VertexAttribute
+struct GLAttribute
 {
   u32 index;
-  u32 size;
-  GLenum type;
+  u32 count;
+  GLenum data_type;
   bool normalized;
   u32 stride;
   void *first;
 };
 
-struct VertexArray
-{
-  u32 id;
-};
+#define ATTRIBUTE_COUNT 2
 
 #define GFX_GL_ASSERT(call) \
   _gfx_clear_error(); \
@@ -66,8 +51,8 @@ struct VertexArray
 bool _gfx_check_error();
 void _gfx_clear_error();
 
-Shader gfx_create_shader(const i8 *vert_src, const i8 *frag_src);
-void gfx_bind_shader(Shader *shader);
+GLObject gfx_create_shader(const i8 *vert_src, const i8 *frag_src);
+void gfx_bind_shader(GLObject *shader);
 void gfx_unbind_shader();
 // void gfx_set_shader_uniform(Shader *shader, i8 *name, u32 val);
 // void gfx_set_shader_uniform(Shader *shader, i8 *name, Vec3F val);
@@ -75,14 +60,19 @@ void gfx_unbind_shader();
 // void gfx_set_shader_uniform(Shader *shader, i8 *name, i32 val);
 // void gfx_set_shader_uniform(Shader *shader, i8 *name, f32 val);
 
-Buffer gfx_create_buffer(void *data, u32 size, BufferType type);
-void gfx_bind_buffer(Buffer *buffer);
-void gfx_unbind_buffer(Buffer *buffer);
+GLObject gfx_create_vertex_buffer(void *data, u32 size);
+void gfx_bind_vertex_buffer(GLObject *vertex_buffer);
+void gfx_unbind_vertex_buffer();
 
-VertexArray gfx_create_array();
-void gfx_set_vertex_attrib(VertexAttribute *attrib);
-void gfx_bind_array(VertexArray *array);
-void gfx_unbind_array();
+GLObject gfx_create_index_buffer(void *data, u32 size);
+void gfx_bind_index_buffer(GLObject *index_buffer);
+void gfx_unbind_index_buffer();
+
+GLObject gfx_create_vertex_array();
+GLAttribute gfx_create_vertex_attrib(u32 index, u32 count, GLenum data_type);
+void gfx_set_vertex_attrib(GLObject *vertex_array, GLAttribute *attrib);
+void gfx_bind_vertex_array(GLObject *vertex_array);
+void gfx_unbind_vertex_array();
 
 void gfx_clear(Vec4F color);
 void gfx_draw_rect(Vec2F pos, Vec2F dim, Vec2F color);

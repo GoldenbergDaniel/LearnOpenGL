@@ -54,7 +54,7 @@ i32 main()
 
   gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
 
-  Shader shader = gfx_create_shader(vert_shader_source, frag_shader_source);
+  GLObject shader = gfx_create_shader(vert_shader_source, frag_shader_source);
 
   f32 vertices[] = {
     -0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f, // top left
@@ -68,42 +68,24 @@ i32 main()
     1, 2, 3  // second triangle
   };
 
-  // Tells OpenGL how it should interpret the vertex data
-  VertexArray va = gfx_create_array();
-  gfx_bind_array(&va);
+  GLObject va = gfx_create_vertex_array();
+  GLObject vb = gfx_create_vertex_buffer(vertices, sizeof (vertices));
+  GLObject ib = gfx_create_index_buffer(indices, sizeof (indices));
 
-  Buffer vb = gfx_create_buffer(vertices, sizeof (vertices), BufferType::VERTEX);
-  gfx_bind_buffer(&vb);
+  gfx_bind_vertex_array(&va);
+  gfx_bind_vertex_buffer(&vb);
+  gfx_bind_index_buffer(&ib);
 
-  Buffer ib = gfx_create_buffer(indices, sizeof (indices), BufferType::INDEX);
-  gfx_bind_buffer(&ib);
+  GLAttribute pos_attrib = gfx_create_vertex_attrib(0, 3, GL_FLOAT);
+  GLAttribute color_attrib = gfx_create_vertex_attrib(1, 3, GL_FLOAT);
 
-  VertexAttribute pos_attrib = {
-    .index = 0,
-    .size = 3,
-    .type = GL_FLOAT,
-    .normalized = false,
-    .stride = 6 * sizeof (f32),
-    .first = (void *) 0
-  };
-
-  VertexAttribute color_attrib = {
-    .index = 1,
-    .size = 3,
-    .type = GL_FLOAT,
-    .normalized = false,
-    .stride = 6 * sizeof (f32),
-    .first = (void *) (3 * sizeof (f32))
-  };
-
-  gfx_set_vertex_attrib(&pos_attrib);
-  gfx_set_vertex_attrib(&color_attrib);
+  gfx_set_vertex_attrib(&va, &pos_attrib);
+  gfx_set_vertex_attrib(&va, &color_attrib);
 
   // Unbind everything
-  gfx_unbind_array();
   gfx_unbind_shader();
-  gfx_unbind_buffer(&vb);
-  gfx_unbind_buffer(&ib);
+  gfx_unbind_vertex_buffer();
+  gfx_unbind_index_buffer();
 
   state.running = true;
   state.first_frame = true;
@@ -126,10 +108,10 @@ i32 main()
 
     // Draw rectangle
     gfx_bind_shader(&shader);
-    gfx_bind_array(&va);
+    gfx_bind_vertex_array(&va);
     GFX_GL_ASSERT(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void *) 0));
 
-    // Swap the front and back buffers to make the rendered image visible
+    // Swap front and back buffers of window
     SDL_GL_SwapWindow(window);
 
     state.first_frame = false;
