@@ -50,12 +50,17 @@ Shader gfx_create_shader(const i8 *vert_src, const i8 *frag_src)
   return (Shader) {id};
 }
 
-void gfx_use_shader(Shader *shader)
+void gfx_bind_shader(Shader *shader)
 {
-  glUseProgram(shader->id);
+  GFX_GL_ASSERT(glUseProgram(shader->id));
 }
 
-static 
+void gfx_unbind_shader()
+{
+  glUseProgram(0);
+}
+
+static
 void gfx_verify_shader(u32 shader, u32 type)
 {
   i32 success;
@@ -85,6 +90,81 @@ void gfx_verify_shader(u32 shader, u32 type)
 
     printf("%s", log);
   }
+}
+
+Buffer gfx_create_buffer(void *data, u32 size, BufferType type)
+{
+  u32 id;
+
+  glGenBuffers(1, &id);
+
+  if (type == BufferType::VERTEX)
+  {
+    GFX_GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, id));
+    GFX_GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+  }
+  else if (type == BufferType::INDEX)
+  {
+    GFX_GL_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id));
+    GFX_GL_ASSERT(glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+  }
+
+  return (Buffer) {id, type};
+}
+
+void gfx_bind_buffer(Buffer *buffer)
+{
+  if (buffer->type == BufferType::VERTEX)
+  {
+    GFX_GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, buffer->id));
+  }
+  else if (buffer->type == BufferType::INDEX)
+  {
+    GFX_GL_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->id));
+  }
+}
+
+void gfx_unbind_buffer(Buffer *buffer)
+{
+  if (buffer->type == BufferType::VERTEX)
+  {
+    GFX_GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, 0));
+  }
+  else if (buffer->type == BufferType::INDEX)
+  {
+    GFX_GL_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+  }
+}
+
+VertexArray gfx_create_array()
+{
+  u32 id;
+  glGenVertexArrays(1, &id);
+
+  return (VertexArray) {id};
+}
+
+void gfx_set_vertex_attrib(VertexAttribute *attrib)
+{
+  GFX_GL_ASSERT(glVertexAttribPointer(
+                        attrib->index,
+                        attrib->size, 
+                        attrib->type, 
+                        attrib->normalized, 
+                        attrib->stride,
+                        attrib->first));
+
+  GFX_GL_ASSERT(glEnableVertexAttribArray(attrib->index));
+}
+
+void gfx_bind_array(VertexArray *array)
+{
+  GFX_GL_ASSERT(glBindVertexArray(array->id));
+}
+
+void gfx_unbind_array()
+{
+  glBindVertexArray(0);
 }
 
 void gfx_clear(Vec4F color)
