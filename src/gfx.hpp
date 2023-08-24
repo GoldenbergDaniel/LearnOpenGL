@@ -6,28 +6,19 @@
 #include "common.hpp"
 #include "util.hpp"
 
-#define DEBUG
+struct GFX_Shader
+{
+  u32 id;
+};
 
-#ifdef DEBUG
-#define GFX_GL_ASSERT(call) \
-  gfx::_clear_error(); \
-  call; \
-  assert(gfx::_check_error())
-#else
-#define GFX_GL_ASSERT(call) \
-  call;
-#endif
-
-namespace gfx {
-
-struct GLObject
+struct GFX_Object
 {
   u32 id;
   u32 attrib_count;
   u32 attrib_index;
 };
 
-struct GLLayout
+struct GFX_Layout
 {
   u32 index;
   u32 count;
@@ -37,33 +28,44 @@ struct GLLayout
   void *first;
 };
 
-bool _check_error();
-void _clear_error();
+#define DEBUG
 
-GLObject create_shader(String *vert_src, String *frag_src);
-void bind(GLObject *shader);
-void unbind_shader();
-i32 get_shader_uniform(GLObject *shader, String *name, u32 val);
-i32 set_shader_uniform(GLObject *shader, String *name, i32 val);
-i32 set_shader_uniform(GLObject *shader, String *name, f32 val);
-i32 set_shader_uniform(GLObject *shader, String *name, Vec2F val);
-i32 set_shader_uniform(GLObject *shader, String *name, Vec3F val);
-i32 set_shader_uniform(GLObject *shader, String *name, Vec4F val);
+#ifdef DEBUG
+#define GFX_ASSERT(call) \
+  _gfx_clear_error(); \
+  call; \
+  assert(_gfx_check_error())
+#else
+#define GFX_ASSERT(call) \
+  call;
+#endif
 
-GLObject create_vertex_buffer(void *data, u32 size);
-void bind(GLObject *vertex_buffer);
-void unbind_vertex_buffer();
+bool _gfx_check_error();
+void _gfx_clear_error();
 
-GLObject create_index_buffer(void *data, u32 size);
-void bind(GLObject *index_buffer);
-void unbind_index_buffer();
+GFX_Shader gfx_create_shader(String *vert_src, String *frag_src);
+void gfx_bind_shader(GFX_Shader *shader);
+void gfx_unbind_shader();
+i32 gfx_set_shader_uniform(GFX_Shader *shader, String *name, u32 val);
+i32 gfx_set_shader_uniform(GFX_Shader *shader, String *name, i32 val);
+i32 gfx_set_shader_uniform(GFX_Shader *shader, String *name, f32 val);
+i32 gfx_set_shader_uniform(GFX_Shader *shader, String *name, Vec2F val);
+i32 gfx_set_shader_uniform(GFX_Shader *shader, String *name, Vec3F val);
+i32 gfx_set_shader_uniform(GFX_Shader *shader, String *name, Vec4F val);
 
-GLObject create_vertex_array(u32 attrib_count);
-void bind(GLObject *vertex_array);
-void unbind_vertex_array();
-GLLayout add_vertex_layout(GLObject *vertex_array, u32 count, GLenum type);
-void set_vertex_layout(GLObject *vertex_array, GLLayout *layout);
+GFX_Object gfx_create_vertex_buffer(void *data, u32 size);
+void gfx_bind_vertex_buffer(GFX_Object *vertex_buffer);
+void gfx_unbind_vertex_buffer();
 
-void clear(Vec4F color);
+GFX_Object gfx_create_index_buffer(void *data, u32 size);
+void gfx_bind_index_buffer(GFX_Object *index_buffer);
+void gfx_unbind_index_buffer();
 
-}
+GFX_Object gfx_create_vertex_array(u32 attrib_count);
+void gfx_bind_vertex_array(GFX_Object *vertex_array);
+void gfx_unbind_vertex_array();
+GFX_Layout gfx_add_vertex_layout(GFX_Object *vertex_array, GLenum type, u32 count);
+void gfx_set_vertex_layout(GFX_Object *vertex_array, GFX_Layout *layout);
+
+void gfx_clear(Vec4F color);
+void gfx_draw_rect(Vec2F pos, Vec2F dim, Vec2F color);

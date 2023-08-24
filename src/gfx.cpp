@@ -9,7 +9,11 @@
 #include "util.hpp"
 #include "gfx.hpp"
 
-static void gfx_verify_shader(u32 shader, u32 type);
+typedef GFX_Shader Shader;
+typedef GFX_Object Object;
+typedef GFX_Layout Layout;
+
+static void gfx_verify_shader(u32 id, GLenum type);
 
 bool _gfx_check_error()
 {
@@ -29,7 +33,7 @@ void _gfx_clear_error()
 
 // Shader ----------------------------------------------------------------------
 
-GLObject gfx_create_shader(String *vert_src, String *frag_src)
+Shader gfx_create_shader(String *vert_src, String *frag_src)
 {
   u32 vert = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vert, 1, &vert_src->data, nullptr);
@@ -50,12 +54,12 @@ GLObject gfx_create_shader(String *vert_src, String *frag_src)
   glDeleteShader(vert);
   glDeleteShader(frag);
 
-  return (GLObject) {id};
+  return (Shader) {id};
 }
 
-void gfx_bind_shader(GLObject *shader)
+void gfx_bind_shader(Shader *shader)
 {
-  GFX_GL_ASSERT(glUseProgram(shader->id));
+  GFX_ASSERT(glUseProgram(shader->id));
 }
 
 void gfx_unbind_shader()
@@ -63,7 +67,7 @@ void gfx_unbind_shader()
   glUseProgram(0);
 }
 
-i32 gfx_set_shader_uniform(GLObject *shader, String *name, u32 val)
+i32 gfx_set_shader_uniform(Shader *shader, String *name, u32 val)
 {
   i32 loc = glGetUniformLocation(shader->id, name->data);
   glUniform1ui(loc, val);
@@ -71,7 +75,7 @@ i32 gfx_set_shader_uniform(GLObject *shader, String *name, u32 val)
   return loc;
 }
 
-i32 gfx_set_shader_uniform(GLObject *shader, String *name, i32 val)
+i32 gfx_set_shader_uniform(Shader *shader, String *name, i32 val)
 {
   i32 loc = glGetUniformLocation(shader->id, name->data);
   glUniform1i(loc, val);
@@ -79,7 +83,7 @@ i32 gfx_set_shader_uniform(GLObject *shader, String *name, i32 val)
   return loc;
 }
 
-i32 gfx_set_shader_uniform(GLObject *shader, String *name, f32 val)
+i32 gfx_set_shader_uniform(Shader *shader, String *name, f32 val)
 {
   i32 loc = glGetUniformLocation(shader->id, name->data);
   glUniform1f(loc, val);
@@ -87,7 +91,7 @@ i32 gfx_set_shader_uniform(GLObject *shader, String *name, f32 val)
   return loc;
 }
 
-i32 gfx_set_shader_uniform(GLObject *shader, String *name, Vec2F val)
+i32 gfx_set_shader_uniform(Shader *shader, String *name, Vec2F val)
 {
   i32 loc = glGetUniformLocation(shader->id, name->data);
   glUniform2f(loc, val.x, val.y);
@@ -95,7 +99,7 @@ i32 gfx_set_shader_uniform(GLObject *shader, String *name, Vec2F val)
   return loc;
 }
 
-i32 gfx_set_shader_uniform(GLObject *shader, String *name, Vec3F val)
+i32 gfx_set_shader_uniform(Shader *shader, String *name, Vec3F val)
 {
   i32 loc = glGetUniformLocation(shader->id, name->data);
   glUniform3f(loc, val.x, val.y, val.z);
@@ -103,7 +107,7 @@ i32 gfx_set_shader_uniform(GLObject *shader, String *name, Vec3F val)
   return loc;
 }
 
-i32 gfx_set_shader_uniform(GLObject *shader, String *name, Vec4F val)
+i32 gfx_set_shader_uniform(Shader *shader, String *name, Vec4F val)
 {
   i32 loc = glGetUniformLocation(shader->id, name->data);
   glUniform4f(loc, val.x, val.y, val.z, val.w);
@@ -112,23 +116,23 @@ i32 gfx_set_shader_uniform(GLObject *shader, String *name, Vec4F val)
 }
 
 static
-void gfx_verify_shader(u32 shader, u32 type)
+void gfx_verify_shader(u32 id, GLenum type)
 {
   i32 success;
 
   if (type == GL_LINK_STATUS)
   {
-    glValidateProgram(shader);
+    glValidateProgram(id);
   }
 
-  glGetShaderiv(shader, type, &success);
+  glGetShaderiv(id, type, &success);
 
   if (!success)
   {
     i32 length;
-    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+    glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
     i8 *log = (i8 *) alloca(length);
-    glGetShaderInfoLog(shader, length, &length, log);
+    glGetShaderInfoLog(id, length, &length, log);
 
     if (type == GL_COMPILE_STATUS)
     {
@@ -145,61 +149,61 @@ void gfx_verify_shader(u32 shader, u32 type)
 
 // Vertex Buffer ---------------------------------------------------------------
 
-GLObject gfx_create_vertex_buffer(void *data, u32 size)
+Object gfx_create_vertex_buffer(void *data, u32 size)
 {
   u32 id;
   glGenBuffers(1, &id);
-  GFX_GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, id));
-  GFX_GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+  GFX_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, id));
+  GFX_ASSERT(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
 
-  return (GLObject) {id};
+  return (Object) {id};
 }
 
-void gfx_bind_vertex_buffer(GLObject *vertex_buffer)
+void gfx_bind_vertex_buffer(Object *vertex_buffer)
 {
-  GFX_GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer->id));
+  GFX_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer->id));
 }
 
 void gfx_unbind_vertex_buffer()
 {
-  GFX_GL_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, 0));
+  GFX_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
 // Index Buffer ----------------------------------------------------------------
 
-GLObject gfx_create_index_buffer(void *data, u32 size)
+Object gfx_create_index_buffer(void *data, u32 size)
 {
   u32 id;
   glGenBuffers(1, &id);
-  GFX_GL_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id));
-  GFX_GL_ASSERT(glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+  GFX_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id));
+  GFX_ASSERT(glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
 
-  return (GLObject) {id};
+  return (Object) {id};
 }
 
-void gfx_bind_index_buffer(GLObject *vertex_buffer)
+void gfx_bind_index_buffer(Object *vertex_buffer)
 {
-  GFX_GL_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer->id));
+  GFX_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer->id));
 }
 
 void gfx_unbind_index_buffer()
 {
-  GFX_GL_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+  GFX_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
 // Vertex Array ----------------------------------------------------------------
 
-GLObject gfx_create_vertex_array(u32 attrib_count)
+Object gfx_create_vertex_array(u32 attrib_count)
 {
   u32 id;
   glGenVertexArrays(1, &id);
 
-  return (GLObject) {id, attrib_count, 0};
+  return (Object) {id, attrib_count, 0};
 }
 
-void gfx_bind_vertex_array(GLObject *array)
+void gfx_bind_vertex_array(Object *array)
 {
-  GFX_GL_ASSERT(glBindVertexArray(array->id));
+  GFX_ASSERT(glBindVertexArray(array->id));
 }
 
 void gfx_unbind_vertex_array()
@@ -207,7 +211,7 @@ void gfx_unbind_vertex_array()
   glBindVertexArray(0);
 }
 
-GLLayout gfx_add_vertex_layout(GLObject *vertex_array, u32 count, GLenum type)
+Layout gfx_add_vertex_layout(Object *vertex_array, GLenum type, u32 count)
 {
   u32 type_size;
 
@@ -220,7 +224,7 @@ GLLayout gfx_add_vertex_layout(GLObject *vertex_array, u32 count, GLenum type)
     default: type_size = 1;
   }
 
-  GLLayout layout = {
+  Layout layout = {
     .index = vertex_array->attrib_index,
     .count = count,
     .data_type = type,
@@ -234,17 +238,17 @@ GLLayout gfx_add_vertex_layout(GLObject *vertex_array, u32 count, GLenum type)
   return layout;
 }
 
-void gfx_set_vertex_layout(GLObject *vertex_array, GLLayout *layout)
+void gfx_set_vertex_layout(Object *vertex_array, Layout *layout)
 {
-  GFX_GL_ASSERT(glVertexAttribPointer(
-                                      layout->index,
-                                      layout->count,
-                                      layout->data_type,
-                                      layout->normalized,
-                                      layout->stride,
-                                      layout->first));
+  GFX_ASSERT(glVertexAttribPointer(
+                                   layout->index,
+                                   layout->count,
+                                   layout->data_type,
+                                   layout->normalized,
+                                   layout->stride,
+                                   layout->first));
 
-  GFX_GL_ASSERT(glEnableVertexAttribArray(layout->index));
+  GFX_ASSERT(glEnableVertexAttribArray(layout->index));
 }
 
 // General ---------------------------------------------------------------------
