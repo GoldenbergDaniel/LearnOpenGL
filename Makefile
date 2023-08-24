@@ -1,6 +1,6 @@
 NAME = Renderer
-LDFLAGS = -framework OpenGL -lsdl2 -L. -lglad
-CFLAGS = -Ilib/ -std=c++17 -O1 -Wall \
+LDFLAGS = -Ilib/ -framework OpenGL -lsdl2 -L. -lglad
+CFLAGS = -std=c++17 -O1 -Wall \
 	-Wno-deprecated-declarations \
 	-Wno-missing-braces \
 	-Wno-unused-variable
@@ -21,7 +21,7 @@ run:
 
 test:
 	cd debug; \
-	$(CC) $(LDFLAGS) ../lib/glad/glad.cpp ../src/main.cpp -g
+	$(CC) -I../lib/ -framework OpenGL -lsdl2 ../lib/glad/glad.cpp ../src/*.cpp -g
 
 compile_glad:
 	$(CC) $(CFLAGS) -dynamiclib -o libglad.dylib lib/glad/glad.cpp

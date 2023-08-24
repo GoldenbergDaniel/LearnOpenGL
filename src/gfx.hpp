@@ -4,34 +4,30 @@
 #include "glad/glad.h"
 
 #include "common.hpp"
+#include "util.hpp"
 
-struct Vec2F
-{
-  union { f32 x; f32 w; };
-  union { f32 y; f32 h; };
-};
+#define DEBUG
 
-struct Vec3F
-{
-  f32 x;
-  f32 y;
-  f32 z;
-};
+#ifdef DEBUG
+#define GFX_GL_ASSERT(call) \
+  gfx::_clear_error(); \
+  call; \
+  assert(gfx::_check_error())
+#else
+#define GFX_GL_ASSERT(call) \
+  call;
+#endif
 
-struct Vec4F
-{
-  union { f32 x; f32 r; };
-  union { f32 y; f32 g; };
-  union { f32 z; f32 b; };
-  union { f32 w; f32 a; };
-};
+namespace gfx {
 
 struct GLObject
 {
   u32 id;
+  u32 attrib_count;
+  u32 attrib_index;
 };
 
-struct GLAttribute
+struct GLLayout
 {
   u32 index;
   u32 count;
@@ -41,38 +37,33 @@ struct GLAttribute
   void *first;
 };
 
-#define ATTRIBUTE_COUNT 2
+bool _check_error();
+void _clear_error();
 
-#define GFX_GL_ASSERT(call) \
-  _gfx_clear_error(); \
-  call; \
-  assert(_gfx_check_error())
+GLObject create_shader(String *vert_src, String *frag_src);
+void bind(GLObject *shader);
+void unbind_shader();
+i32 get_shader_uniform(GLObject *shader, String *name, u32 val);
+i32 set_shader_uniform(GLObject *shader, String *name, i32 val);
+i32 set_shader_uniform(GLObject *shader, String *name, f32 val);
+i32 set_shader_uniform(GLObject *shader, String *name, Vec2F val);
+i32 set_shader_uniform(GLObject *shader, String *name, Vec3F val);
+i32 set_shader_uniform(GLObject *shader, String *name, Vec4F val);
 
-bool _gfx_check_error();
-void _gfx_clear_error();
+GLObject create_vertex_buffer(void *data, u32 size);
+void bind(GLObject *vertex_buffer);
+void unbind_vertex_buffer();
 
-GLObject gfx_create_shader(const i8 *vert_src, const i8 *frag_src);
-void gfx_bind_shader(GLObject *shader);
-void gfx_unbind_shader();
-// void gfx_set_shader_uniform(Shader *shader, i8 *name, u32 val);
-// void gfx_set_shader_uniform(Shader *shader, i8 *name, Vec3F val);
-// void gfx_set_shader_uniform(Shader *shader, i8 *name, Vec4F val);
-// void gfx_set_shader_uniform(Shader *shader, i8 *name, i32 val);
-// void gfx_set_shader_uniform(Shader *shader, i8 *name, f32 val);
+GLObject create_index_buffer(void *data, u32 size);
+void bind(GLObject *index_buffer);
+void unbind_index_buffer();
 
-GLObject gfx_create_vertex_buffer(void *data, u32 size);
-void gfx_bind_vertex_buffer(GLObject *vertex_buffer);
-void gfx_unbind_vertex_buffer();
+GLObject create_vertex_array(u32 attrib_count);
+void bind(GLObject *vertex_array);
+void unbind_vertex_array();
+GLLayout add_vertex_layout(GLObject *vertex_array, u32 count, GLenum type);
+void set_vertex_layout(GLObject *vertex_array, GLLayout *layout);
 
-GLObject gfx_create_index_buffer(void *data, u32 size);
-void gfx_bind_index_buffer(GLObject *index_buffer);
-void gfx_unbind_index_buffer();
+void clear(Vec4F color);
 
-GLObject gfx_create_vertex_array();
-GLAttribute gfx_create_vertex_attrib(u32 index, u32 count, GLenum data_type);
-void gfx_set_vertex_attrib(GLObject *vertex_array, GLAttribute *attrib);
-void gfx_bind_vertex_array(GLObject *vertex_array);
-void gfx_unbind_vertex_array();
-
-void gfx_clear(Vec4F color);
-void gfx_draw_rect(Vec2F pos, Vec2F dim, Vec2F color);
+}

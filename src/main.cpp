@@ -16,6 +16,7 @@ struct State
   bool first_frame;
 };
 
+#define DEBUG
 // #define LOG_PERF
 
 #define CENTERED SDL_WINDOWPOS_CENTERED
@@ -46,7 +47,7 @@ i32 main()
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
-  window = SDL_CreateWindow("OPENGL", CENTERED, CENTERED, 800, 450, WINDOW_FLAGS);
+  window = SDL_CreateWindow("OPENGL", CENTERED, CENTERED, 800, 450, SDL_WINDOW_OPENGL);
   context = SDL_GL_CreateContext(window);
   SDL_GL_MakeCurrent(window, context);
   
@@ -54,7 +55,10 @@ i32 main()
 
   gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
 
-  GLObject shader = gfx_create_shader(vert_shader_source, frag_shader_source);
+  String vert_shader_str = str_lit(vert_shader_source);
+  String frag_shader_str = str_lit(frag_shader_source);
+
+  gfx::GLObject shader = gfx::create_shader(&vert_shader_str, &frag_shader_str);
 
   f32 vertices[] = {
     -0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f, // top left
@@ -63,29 +67,30 @@ i32 main()
     -0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 0.0f, // bottom left
   };
 
-  u8 indices[] = {
+  u16 indices[] = {
     0, 1, 3, // first triangle
     1, 2, 3  // second triangle
   };
 
-  GLObject va = gfx_create_vertex_array();
-  GLObject vb = gfx_create_vertex_buffer(vertices, sizeof (vertices));
-  GLObject ib = gfx_create_index_buffer(indices, sizeof (indices));
+  gfx::GLObject v_arr = gfx::create_vertex_array(2);
+  gfx::GLObject v_buf = gfx::create_vertex_buffer(vertices, sizeof (vertices));
+  gfx::GLObject i_buf = gfx::create_index_buffer(indices, sizeof (indices));
 
-  gfx_bind_vertex_array(&va);
-  gfx_bind_vertex_buffer(&vb);
-  gfx_bind_index_buffer(&ib);
+  gfx::bind(&v_arr);
+  gfx::bind(&v_buf);
+  gfx::bind(&i_buf);
 
-  GLAttribute pos_attrib = gfx_create_vertex_attrib(0, 3, GL_FLOAT);
-  GLAttribute color_attrib = gfx_create_vertex_attrib(1, 3, GL_FLOAT);
+  gfx::GLLayout position_layout = gfx::add_vertex_layout(&v_arr, 3, GL_FLOAT);
+  gfx::GLLayout color_layout = gfx::add_vertex_layout(&v_arr, 3, GL_FLOAT);
 
-  gfx_set_vertex_attrib(&va, &pos_attrib);
-  gfx_set_vertex_attrib(&va, &color_attrib);
+  gfx::set_vertex_layout(&v_arr, &position_layout);
+  gfx::set_vertex_layout(&v_arr, &color_layout);
 
   // Unbind everything
-  gfx_unbind_shader();
-  gfx_unbind_vertex_buffer();
-  gfx_unbind_index_buffer();
+  gfx::unbind_shader();
+  gfx::unbind_vertex_array();
+  gfx::unbind_vertex_buffer();
+  gfx::unbind_index_buffer();
 
   state.running = true;
   state.first_frame = true;
@@ -104,12 +109,12 @@ i32 main()
       }
     }
     
-    gfx_clear((Vec4F) {0.1f, 0.1f, 0.1f, 1.0f});
+    gfx::clear(vec4f(0.1f, 0.1f, 0.1f, 1.0f));
 
     // Draw rectangle
-    gfx_bind_shader(&shader);
-    gfx_bind_vertex_array(&va);
-    GFX_GL_ASSERT(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void *) 0));
+    gfx::bind(&shader);
+    gfx::bind(&v_arr);
+    GFX_GL_ASSERT(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void *) 0));
 
     // Swap front and back buffers of window
     SDL_GL_SwapWindow(window);
