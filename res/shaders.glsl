@@ -2,9 +2,12 @@
 #version 410 core
 
 layout (location = 0) in vec3 pos;
+uniform vec2 u_pos;
 
 void main()
 {
+  pos.x += u_pos.x;
+  pos.y += u_pos.y;
   gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
 };
 

@@ -8,7 +8,7 @@
 
 #include "common.hpp"
 #include "shaders.hpp"
-#include "gfx.hpp"
+#include "render.hpp"
 
 struct State
 {
@@ -27,6 +27,8 @@ static void handle_input(SDL_Event *event, bool *running);
 i32 main()
 {
   State state;
+  state.running = true;
+
   SDL_Window *window;
   SDL_GLContext context;
 
@@ -55,10 +57,7 @@ i32 main()
 
   gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
 
-  String vert_shader_str = str_lit(vert_shader_source);
-  String frag_shader_str = str_lit(frag_shader_source);
-
-  GFX_Shader shader = gfx_create_shader(&vert_shader_str, &frag_shader_str);
+  R_Shader shader = r_create_shader(v_shader_src, f_shader_src);
 
   f32 vertices[] = {
     -0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f, // top left
@@ -72,25 +71,25 @@ i32 main()
     1, 2, 3  // second triangle
   };
 
-  GFX_Object v_arr = gfx_create_vertex_array(2);
-  GFX_Object v_buf = gfx_create_vertex_buffer(vertices, sizeof (vertices));
-  GFX_Object i_buf = gfx_create_index_buffer(indices, sizeof (indices));
+  R_Object v_arr = r_create_vertex_array(2);
+  R_Object v_buf = r_create_vertex_buffer(vertices, sizeof (vertices));
+  R_Object i_buf = r_create_index_buffer(indices, sizeof (indices));
 
-  gfx_bind_vertex_array(&v_arr);
-  gfx_bind_vertex_buffer(&v_buf);
-  gfx_bind_index_buffer(&i_buf);
+  r_bind_vertex_array(&v_arr);
+  r_bind_vertex_buffer(&v_buf);
+  r_bind_index_buffer(&i_buf);
 
-  GFX_Layout position_layout = gfx_add_vertex_layout(&v_arr, GL_FLOAT, 3);
-  GFX_Layout color_layout = gfx_add_vertex_layout(&v_arr, GL_FLOAT, 3);
+  R_Layout position_layout = r_add_vertex_layout(&v_arr, GL_FLOAT, 3);
+  R_Layout color_layout = r_add_vertex_layout(&v_arr, GL_FLOAT, 3);
 
-  gfx_set_vertex_layout(&v_arr, &position_layout);
-  gfx_set_vertex_layout(&v_arr, &color_layout);
+  r_set_vertex_layout(&v_arr, &position_layout);
+  r_set_vertex_layout(&v_arr, &color_layout);
 
   // Unbind everything
-  gfx_unbind_shader();
-  gfx_unbind_vertex_array();
-  gfx_unbind_vertex_buffer();
-  gfx_unbind_index_buffer();
+  r_unbind_shader();
+  r_unbind_vertex_array();
+  r_unbind_vertex_buffer();
+  r_unbind_index_buffer();
 
   state.running = true;
   state.first_frame = true;
@@ -109,12 +108,15 @@ i32 main()
       }
     }
     
-    gfx_clear(vec4f(0.1f, 0.1f, 0.1f, 1.0f));
+    r_clear(vec4f(0.1f, 0.1f, 0.1f, 1.0f));
+
+    // Update position
+    // r_set_uniform(&shader, (i8 *) "u_pos", vec2f(0.1f, 0.1f));
 
     // Draw rectangle
-    gfx_bind_shader(&shader);
-    gfx_bind_vertex_array(&v_arr);
-    GFX_ASSERT(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void *) 0));
+    r_bind_shader(&shader);
+    r_bind_vertex_array(&v_arr);
+    R_ASSERT(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void *) 0));
 
     // Swap front and back buffers of window
     SDL_GL_SwapWindow(window);

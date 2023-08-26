@@ -23,11 +23,33 @@ struct Vec4F
   union { f32 w; f32 a; };
 };
 
+struct Mat4x4F
+{
+  Vec4F r1;
+  Vec4F r2;
+  Vec4F r3;
+  Vec4F r4;
+};
+
+inline
+Vec2F vec2f(f32 x, f32 y)
+{
+  return (Vec2F) {x, y};
+}
+
 inline
 Vec4F vec4f(f32 x, f32 y, f32 z, f32 w)
 {
   return (Vec4F) {x, y, z, w};
 }
+
+inline
+Mat4x4F mat4x4f(Vec4F r1, Vec4F r2, Vec4F r3, Vec4F r4)
+{
+  return (Mat4x4F) {r1, r2, r3, r4};
+}
+
+// Other -----------------------------------------------------------------------
 
 struct String
 {

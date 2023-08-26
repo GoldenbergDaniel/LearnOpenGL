@@ -10,11 +10,11 @@ all: compile run
 
 compile:
 	@echo "Compiling..."
-	@$(CC) $(CFLAGS) $(LDFLAGS) src/main.cpp src/gfx.cpp -o $(NAME) 
+	@$(CC) $(CFLAGS) $(LDFLAGS) src/main.cpp src/render.cpp -o $(NAME) 
 
 compile_t:
 	@echo "Compiling..."
-	@time $(CC) $(CFLAGS) $(LDFLAGS) src/main.cpp src/gfx.cpp -o $(NAME) 
+	@time $(CC) $(CFLAGS) $(LDFLAGS) src/main.cpp src/render.cpp -o $(NAME) 
 
 run:
 	./$(NAME)
