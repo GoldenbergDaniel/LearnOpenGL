@@ -1,4 +1,4 @@
-#include "common.hpp"
+#include "common.h"
 
 i8 *v_shader_src = (i8 *) " \
 #version 410 core \

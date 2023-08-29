@@ -1,6 +1,6 @@
 NAME = Renderer
 LDFLAGS = -Ilib/ -framework OpenGL -lsdl2 -L. -lglad
-CFLAGS = -std=c++17 -O1 -Wall \
+CFLAGS = -std=c++17 -O1 -Wall -fno-exceptions \
 	-Wno-deprecated-declarations \
 	-Wno-missing-braces \
 	-Wno-unused-variable

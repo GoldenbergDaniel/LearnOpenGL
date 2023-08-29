@@ -1,13 +1,12 @@
 #include <stdio.h>
 #include <alloca.h>
-#include <assert.h>
 #include <SDL2/SDL.h>
 
 #include "glad/glad.h"
 
-#include "common.hpp"
-#include "util.hpp"
-#include "render.hpp"
+#include "common.h"
+#include "util.h"
+#include "render.h"
 
 static void r_verify_shader(u32 id, GLenum type);
 
@@ -115,22 +114,22 @@ i32 r_set_uniform(R_Shader *shader, String *name, Mat4x4F mat)
 {
   // NOTE: Column-major order
   f32 matrix[16];
-  matrix[0] = mat.r1.x;
-  matrix[1] = mat.r2.x;
-  matrix[2] = mat.r3.x;
-  matrix[3] = mat.r4.x;
-  matrix[4] = mat.r1.y;
-  matrix[5] = mat.r2.y;
-  matrix[6] = mat.r3.y;
-  matrix[7] = mat.r4.y;
-  matrix[8] = mat.r1.z;
-  matrix[9] = mat.r2.z;
-  matrix[10] = mat.r3.z;
-  matrix[11] = mat.r4.z;
-  matrix[12] = mat.r1.w;
-  matrix[13] = mat.r2.w;
-  matrix[14] = mat.r3.w;
-  matrix[15] = mat.r4.w;
+  matrix[0] = mat.data[0][0];
+  matrix[1] = mat.data[1][0];
+  matrix[2] = mat.data[2][0];
+  matrix[2] = mat.data[3][0];
+  matrix[0] = mat.data[0][1];
+  matrix[1] = mat.data[1][1];
+  matrix[2] = mat.data[2][1];
+  matrix[2] = mat.data[3][1];
+  matrix[0] = mat.data[0][2];
+  matrix[1] = mat.data[1][2];
+  matrix[2] = mat.data[2][2];
+  matrix[2] = mat.data[3][2];
+  matrix[0] = mat.data[0][3];
+  matrix[1] = mat.data[1][3];
+  matrix[2] = mat.data[2][3];
+  matrix[2] = mat.data[3][3];
 
   i32 loc = glGetUniformLocation(shader->id, name->data);
   glUniformMatrix4fv(loc, 16, false, matrix);
@@ -170,56 +169,92 @@ void r_verify_shader(u32 id, GLenum type)
   }
 }
 
-// Vertex Buffer ---------------------------------------------------------------
+// Buffer ----------------------------------------------------------------------
 
-R_Object r_create_vertex_buffer(void *data, u32 size)
+R_Object r_create_buffer(u8 type, void *data, u32 size)
 {
   u32 id;
   glGenBuffers(1, &id);
-  R_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, id));
-  R_ASSERT(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+
+  switch (type)
+  {
+    case R_BufferType_V:
+    {
+      glBindBuffer(GL_ARRAY_BUFFER, id);
+      glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+    };
+    break;
+    case R_BufferType_I:
+    {
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    };
+    break;
+    default: ASSERT(false);
+  }
 
   return (R_Object) {id};
 }
 
-void r_bind_vertex_buffer(R_Object *vertex_buffer)
-{
-  R_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer->id));
-}
-
-void r_unbind_vertex_buffer()
-{
-  R_ASSERT(glBindBuffer(GL_ARRAY_BUFFER, 0));
-}
-
-// Index Buffer ----------------------------------------------------------------
-
-R_Object r_create_index_buffer(void *data, u32 size)
+R_Object r_create_buffer(u8 type, R_Vertex *vertex, u32 size)
 {
   u32 id;
   glGenBuffers(1, &id);
-  R_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id));
-  R_ASSERT(glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+
+  switch (type)
+  {
+    case R_BufferType_V:
+    {
+      glBindBuffer(GL_ARRAY_BUFFER, id);
+      glBufferData(GL_ARRAY_BUFFER, size, vertex, GL_STATIC_DRAW);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+    };
+    break;
+    case R_BufferType_I:
+    {
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, vertex, GL_STATIC_DRAW);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    };
+    break;
+    default: ASSERT(false);
+  }
 
   return (R_Object) {id};
 }
 
-void r_bind_index_buffer(R_Object *vertex_buffer)
+void r_bind_buffer(u8 type, R_Object *buffer)
 {
-  R_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer->id));
+  switch (type)
+  {
+    case R_BufferType_V: {glBindBuffer(GL_ARRAY_BUFFER, buffer->id);};
+    break;
+    case R_BufferType_I: {glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->id);};
+    break;
+    default: ASSERT(false);
+  }
 }
 
-void r_unbind_index_buffer()
+void r_unbind_buffer(u8 type)
 {
-  R_ASSERT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+  switch (type)
+  {
+    case R_BufferType_V: {glBindBuffer(GL_ARRAY_BUFFER, 0);};
+    break;
+    case R_BufferType_I: {glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);};
+    break;
+    default: ASSERT(false);
+  }
 }
 
 // Vertex Array ----------------------------------------------------------------
 
-R_Object r_create_vertex_array(u32 attrib_count)
+R_Object r_create_vertex_array(u8 attrib_count)
 {
   u32 id;
-  glGenVertexArrays(1, &id);
+  R_ASSERT(glGenVertexArrays(1, &id));
 
   return (R_Object) {id, attrib_count, 0};
 }
@@ -236,8 +271,7 @@ void r_unbind_vertex_array()
 
 R_Layout r_add_vertex_layout(R_Object *vertex_array, GLenum type, u32 count)
 {
-  u32 type_size;
-
+  u8 type_size;
   switch (type)
   {
     case GL_BYTE: {type_size = sizeof (i8);} break;
@@ -247,7 +281,8 @@ R_Layout r_add_vertex_layout(R_Object *vertex_array, GLenum type, u32 count)
     default: type_size = 1;
   }
 
-  R_Layout layout = {
+  R_Layout layout =
+  {
     .index = vertex_array->attrib_index,
     .count = count,
     .data_type = type,
@@ -264,19 +299,19 @@ R_Layout r_add_vertex_layout(R_Object *vertex_array, GLenum type, u32 count)
 void r_set_vertex_layout(R_Object *vertex_array, R_Layout *layout)
 {
   R_ASSERT(glVertexAttribPointer(
-                                   layout->index,
-                                   layout->count,
-                                   layout->data_type,
-                                   layout->normalized,
-                                   layout->stride,
-                                   layout->first));
+                                 layout->index,
+                                 layout->count,
+                                 layout->data_type,
+                                 layout->normalized,
+                                 layout->stride,
+                                 layout->first));
 
   R_ASSERT(glEnableVertexAttribArray(layout->index));
 }
 
-// General ---------------------------------------------------------------------
+// Draw ------------------------------------------------------------------------
 
-void r_clear(Vec4F color)
+void d_clear(Vec4F color)
 {
   glClearColor(color.r, color.g, color.b, color.a);
   glClear(GL_COLOR_BUFFER_BIT);

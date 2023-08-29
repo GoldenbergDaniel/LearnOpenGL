@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.hpp"
+#include "common.h"
 
 struct Vec2F
 {
@@ -25,10 +25,7 @@ struct Vec4F
 
 struct Mat4x4F
 {
-  Vec4F r1;
-  Vec4F r2;
-  Vec4F r3;
-  Vec4F r4;
+  f32 data[4][4];
 };
 
 inline
@@ -43,10 +40,23 @@ Vec4F vec4f(f32 x, f32 y, f32 z, f32 w)
   return (Vec4F) {x, y, z, w};
 }
 
+// Vec2F operator+(Vec2F a, Vec2F b)
+// {
+//   return (Vec2F) {a.x + b.x, a.y + b.y};
+// }
+
 inline
 Mat4x4F mat4x4f(Vec4F r1, Vec4F r2, Vec4F r3, Vec4F r4)
 {
-  return (Mat4x4F) {r1, r2, r3, r4};
+  return (Mat4x4F)
+  {
+    {
+      {r1.x, r1.y, r1.z, r1.w},
+      {r2.x, r2.y, r2.z, r2.w},
+      {r3.x, r1.y, r1.z, r3.w},
+      {r4.x, r1.y, r1.z, r4.w}
+    }
+  };
 }
 
 // Other -----------------------------------------------------------------------
