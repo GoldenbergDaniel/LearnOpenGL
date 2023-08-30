@@ -4,7 +4,7 @@
 #include "glad/glad.h"
 
 #include "common.h"
-#include "util.h"
+#include "math.h"
 
 typedef struct R_Vertex R_Vertex;
 struct R_Vertex
@@ -70,7 +70,7 @@ i32 r_set_uniform_1f(R_Shader *shader, i8 *name, f32 val);
 i32 r_set_uniform_2f(R_Shader *shader, i8 *name, Vec2F vec);
 i32 r_set_uniform_3f(R_Shader *shader, i8 *name, Vec3F vec);
 i32 r_set_uniform_4f(R_Shader *shader, i8 *name, Vec4F vec);
-i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4F mat);
+i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4x4F mat);
 
 // Buffer ----------------------------------------------------------------------
 

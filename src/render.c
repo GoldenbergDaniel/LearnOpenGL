@@ -5,7 +5,7 @@
 #include "glad/glad.h"
 
 #include "common.h"
-#include "util.h"
+#include "math.h"
 #include "render.h"
 
 static void r_verify_shader(u32 id, GLenum type);
@@ -110,7 +110,7 @@ i32 r_set_uniform_4f(R_Shader *shader, i8 *name, Vec4F vec)
   return loc;
 }
 
-i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4F mat)
+i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4x4F mat)
 {
   // NOTE: Column-major order
   f32 matrix[16];

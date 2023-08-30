@@ -1,12 +1,12 @@
 // https://learnopengl.com/Getting-started
 
 #include <stdio.h>
-#include <math.h>
 #include <SDL2/SDL.h>
 
 #include "glad/glad.h"
 
 #include "common.h"
+#include "math.h"
 #include "shaders.h"
 #include "render.h"
 
@@ -25,7 +25,7 @@ struct State
 
 static void handle_input(State *state, SDL_Event *event);
 
-i32 main()
+i32 main(void)
 {
   State state;
   state.running = TRUE;
