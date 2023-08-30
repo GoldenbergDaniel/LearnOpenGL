@@ -2,12 +2,14 @@
 
 #include "common.h"
 
+typedef struct Vec2F Vec2F;
 struct Vec2F
 {
   f32 x;
   f32 y;
 };
 
+typedef struct Vec3F Vec3F;
 struct Vec3F
 {
   f32 x;
@@ -15,6 +17,7 @@ struct Vec3F
   f32 z;
 };
 
+typedef struct Vec4F Vec4F;
 struct Vec4F
 {
   union { f32 x; f32 r; };
@@ -23,10 +26,14 @@ struct Vec4F
   union { f32 w; f32 a; };
 };
 
-struct Mat4x4F
+typedef struct Mat4F Mat4F;
+struct Mat4F
 {
-  f32 data[4][4];
+  f32 elements[4][4];
 };
+
+#define MAJOR_R 0
+#define MAJOR_C 1
 
 inline
 Vec2F vec2f(f32 x, f32 y)
@@ -40,27 +47,42 @@ Vec4F vec4f(f32 x, f32 y, f32 z, f32 w)
   return (Vec4F) {x, y, z, w};
 }
 
-// Vec2F operator+(Vec2F a, Vec2F b)
-// {
-//   return (Vec2F) {a.x + b.x, a.y + b.y};
-// }
-
 inline
-Mat4x4F mat4x4f(Vec4F r1, Vec4F r2, Vec4F r3, Vec4F r4)
+Mat4F mat4f(Vec4F v1, Vec4F v2, Vec4F v3, Vec4F v4, u8 major)
 {
-  return (Mat4x4F)
+  Mat4F result = {};
+
+  if (major == MAJOR_R)
   {
+    result = (Mat4F)
     {
-      {r1.x, r1.y, r1.z, r1.w},
-      {r2.x, r2.y, r2.z, r2.w},
-      {r3.x, r1.y, r1.z, r3.w},
-      {r4.x, r1.y, r1.z, r4.w}
-    }
-  };
+      {
+        {v1.x, v1.y, v1.z, v1.w},
+        {v2.x, v2.y, v2.z, v2.w},
+        {v3.x, v3.y, v3.z, v3.w},
+        {v4.x, v4.y, v4.z, v4.w}
+      }
+    };
+  }
+  else if (major == MAJOR_C)
+  {
+    result = (Mat4F)
+    {
+      {
+        {v1.x, v2.x, v3.x, v4.x},
+        {v1.y, v2.y, v3.y, v4.y},
+        {v1.z, v2.z, v3.z, v4.z},
+        {v1.w, v2.w, v3.w, v4.w}
+      }
+    };
+  }
+
+  return result;
 }
 
 // Other -----------------------------------------------------------------------
 
+typedef struct String String;
 struct String
 {
   i8 *data;

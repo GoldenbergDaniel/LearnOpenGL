@@ -1,6 +1,6 @@
 #include "common.h"
 
-i8 *v_shader_src = (i8 *) " \
+const i8 *v_shader_src = " \
 #version 410 core \
 layout (location = 0) in vec3 a_pos; \
 layout (location = 1) in vec3 a_color; \
@@ -11,7 +11,7 @@ void main() \
   color = a_color; \
 }";
 
-i8 *f_shader_src = (i8 *) " \
+const i8 *f_shader_src = " \
 #version 410 core \
 in vec3 color; \
 out vec4 frag_color; \

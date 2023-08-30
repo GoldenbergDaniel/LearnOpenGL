@@ -1,27 +1,27 @@
 NAME = Renderer
-LDFLAGS = -Ilib/ -framework OpenGL -lsdl2 -L. -lglad
-CFLAGS = -std=c++17 -O1 -Wall -fno-exceptions \
+LDFLAGS = -Iextern/ -framework OpenGL -lsdl2 -L. -lglad
+CFLAGS = -std=c17 -O1 -Wall \
 	-Wno-deprecated-declarations \
 	-Wno-missing-braces \
 	-Wno-unused-variable
-CC = c++
+CC = cc
 
 all: compile run
 
 compile:
 	@echo "Compiling..."
-	@$(CC) $(CFLAGS) $(LDFLAGS) src/main.cpp src/render.cpp -o $(NAME) 
+	@$(CC) $(CFLAGS) $(LDFLAGS) src/*.c -o $(NAME) 
 
 compile_t:
 	@echo "Compiling..."
-	@time $(CC) $(CFLAGS) $(LDFLAGS) src/main.cpp src/render.cpp -o $(NAME) 
+	@time $(CC) $(CFLAGS) $(LDFLAGS) src/*.c -o $(NAME) 
 
 run:
 	./$(NAME)
 
 test:
 	cd debug; \
-	$(CC) -I../lib/ -framework OpenGL -lsdl2 ../lib/glad/glad.cpp ../src/*.cpp -g
+	$(CC) -I../lib/ -framework OpenGL -lsdl2 ../lib/glad/glad.cpp ../src/*.c -g
 
 compile_glad:
-	$(CC) $(CFLAGS) -dynamiclib -o libglad.dylib lib/glad/glad.cpp
+	$(CC) $(CFLAGS) -dynamiclib -o libglad.dylib extern/glad/glad.c

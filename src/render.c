@@ -12,13 +12,13 @@ static void r_verify_shader(u32 id, GLenum type);
 
 bool _r_check_error()
 {
-  while (u32 err = glGetError())
+  for (u32 err = -1; (err = glGetError());)
   {
     printf("[OpenGL Error]: %u\n", err);
-    return false;
+    return TRUE;
   }
 
-  return true;
+  return FALSE;
 }
 
 void _r_clear_error()
@@ -28,15 +28,15 @@ void _r_clear_error()
 
 // Shader ----------------------------------------------------------------------
 
-R_Shader r_create_shader(i8 *vert_src, i8 *frag_src)
+R_Shader r_create_shader(const i8 *vert_src, const i8 *frag_src)
 {
   u32 vert = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vert, 1, &vert_src, nullptr);
+  glShaderSource(vert, 1, &vert_src, NULL);
   glCompileShader(vert);
   r_verify_shader(vert, GL_COMPILE_STATUS);
 
   u32 frag = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(frag, 1, &frag_src, nullptr);
+  glShaderSource(frag, 1, &frag_src, NULL);
   glCompileShader(frag);
   r_verify_shader(frag, GL_COMPILE_STATUS);
 
@@ -62,7 +62,7 @@ void r_unbind_shader()
   glUseProgram(0);
 }
 
-i32 r_set_uniform(R_Shader *shader, i8 *name, u32 val)
+i32 r_set_uniform_1u(R_Shader *shader, i8 *name, u32 val)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform1ui(loc, val);
@@ -70,7 +70,7 @@ i32 r_set_uniform(R_Shader *shader, i8 *name, u32 val)
   return loc;
 }
 
-i32 r_set_uniform(R_Shader *shader, i8 *name, i32 val)
+i32 r_set_uniform_1i(R_Shader *shader, i8 *name, i32 val)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform1i(loc, val);
@@ -78,7 +78,7 @@ i32 r_set_uniform(R_Shader *shader, i8 *name, i32 val)
   return loc;
 }
 
-i32 r_set_uniform(R_Shader *shader, i8 *name, f32 val)
+i32 r_set_uniform_1f(R_Shader *shader, i8 *name, f32 val)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform1f(loc, val);
@@ -86,7 +86,7 @@ i32 r_set_uniform(R_Shader *shader, i8 *name, f32 val)
   return loc;
 }
 
-i32 r_set_uniform(R_Shader *shader, i8 *name, Vec2F vec)
+i32 r_set_uniform_2f(R_Shader *shader, i8 *name, Vec2F vec)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform2f(loc, vec.x, vec.y);
@@ -94,7 +94,7 @@ i32 r_set_uniform(R_Shader *shader, i8 *name, Vec2F vec)
   return loc;
 }
 
-i32 r_set_uniform(R_Shader *shader, i8 *name, Vec3F vec)
+i32 r_set_uniform_3f(R_Shader *shader, i8 *name, Vec3F vec)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform3f(loc, vec.x, vec.y, vec.z);
@@ -102,7 +102,7 @@ i32 r_set_uniform(R_Shader *shader, i8 *name, Vec3F vec)
   return loc;
 }
 
-i32 r_set_uniform(R_Shader *shader, i8 *name, Vec4F vec)
+i32 r_set_uniform_4f(R_Shader *shader, i8 *name, Vec4F vec)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform4f(loc, vec.x, vec.y, vec.z, vec.w);
@@ -110,29 +110,29 @@ i32 r_set_uniform(R_Shader *shader, i8 *name, Vec4F vec)
   return loc;
 }
 
-i32 r_set_uniform(R_Shader *shader, String *name, Mat4x4F mat)
+i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4F mat)
 {
   // NOTE: Column-major order
   f32 matrix[16];
-  matrix[0] = mat.data[0][0];
-  matrix[1] = mat.data[1][0];
-  matrix[2] = mat.data[2][0];
-  matrix[2] = mat.data[3][0];
-  matrix[0] = mat.data[0][1];
-  matrix[1] = mat.data[1][1];
-  matrix[2] = mat.data[2][1];
-  matrix[2] = mat.data[3][1];
-  matrix[0] = mat.data[0][2];
-  matrix[1] = mat.data[1][2];
-  matrix[2] = mat.data[2][2];
-  matrix[2] = mat.data[3][2];
-  matrix[0] = mat.data[0][3];
-  matrix[1] = mat.data[1][3];
-  matrix[2] = mat.data[2][3];
-  matrix[2] = mat.data[3][3];
+  matrix[0] = mat.elements[0][0];
+  matrix[1] = mat.elements[1][0];
+  matrix[2] = mat.elements[2][0];
+  matrix[2] = mat.elements[3][0];
+  matrix[0] = mat.elements[0][1];
+  matrix[1] = mat.elements[1][1];
+  matrix[2] = mat.elements[2][1];
+  matrix[2] = mat.elements[3][1];
+  matrix[0] = mat.elements[0][2];
+  matrix[1] = mat.elements[1][2];
+  matrix[2] = mat.elements[2][2];
+  matrix[2] = mat.elements[3][2];
+  matrix[0] = mat.elements[0][3];
+  matrix[1] = mat.elements[1][3];
+  matrix[2] = mat.elements[2][3];
+  matrix[2] = mat.elements[3][3];
 
-  i32 loc = glGetUniformLocation(shader->id, name->data);
-  glUniformMatrix4fv(loc, 16, false, matrix);
+  i32 loc = glGetUniformLocation(shader->id, name);
+  glUniformMatrix4fv(loc, 16, FALSE, matrix);
   
   return loc;
 }
@@ -171,7 +171,7 @@ void r_verify_shader(u32 id, GLenum type)
 
 // Buffer ----------------------------------------------------------------------
 
-R_Object r_create_buffer(u8 type, void *data, u32 size)
+R_Object r_create_buffer(void *data, u32 size, R_BufferType type)
 {
   u32 id;
   glGenBuffers(1, &id);
@@ -192,40 +192,13 @@ R_Object r_create_buffer(u8 type, void *data, u32 size)
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     };
     break;
-    default: ASSERT(false);
+    default: ASSERT(FALSE);
   }
 
   return (R_Object) {id};
 }
 
-R_Object r_create_buffer(u8 type, R_Vertex *vertex, u32 size)
-{
-  u32 id;
-  glGenBuffers(1, &id);
-
-  switch (type)
-  {
-    case R_BufferType_V:
-    {
-      glBindBuffer(GL_ARRAY_BUFFER, id);
-      glBufferData(GL_ARRAY_BUFFER, size, vertex, GL_STATIC_DRAW);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-    };
-    break;
-    case R_BufferType_I:
-    {
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, vertex, GL_STATIC_DRAW);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    };
-    break;
-    default: ASSERT(false);
-  }
-
-  return (R_Object) {id};
-}
-
-void r_bind_buffer(u8 type, R_Object *buffer)
+void r_bind_buffer(R_Object *buffer, R_BufferType type)
 {
   switch (type)
   {
@@ -233,11 +206,11 @@ void r_bind_buffer(u8 type, R_Object *buffer)
     break;
     case R_BufferType_I: {glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->id);};
     break;
-    default: ASSERT(false);
+    default: ASSERT(FALSE);
   }
 }
 
-void r_unbind_buffer(u8 type)
+void r_unbind_buffer(R_BufferType type)
 {
   switch (type)
   {
@@ -245,7 +218,7 @@ void r_unbind_buffer(u8 type)
     break;
     case R_BufferType_I: {glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);};
     break;
-    default: ASSERT(false);
+    default: ASSERT(FALSE);
   }
 }
 
@@ -286,7 +259,7 @@ R_Layout r_add_vertex_layout(R_Object *vertex_array, GLenum type, u32 count)
     .index = vertex_array->attrib_index,
     .count = count,
     .data_type = type,
-    .normalized = false,
+    .normalized = FALSE,
     .stride = count * vertex_array->attrib_count * type_size,
     .first = (void *) (u64) (vertex_array->attrib_index * count * type_size)
   };

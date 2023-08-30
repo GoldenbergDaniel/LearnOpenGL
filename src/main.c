@@ -10,6 +10,7 @@
 #include "shaders.h"
 #include "render.h"
 
+typedef struct State State;
 struct State
 {
   bool running;
@@ -27,7 +28,7 @@ static void handle_input(State *state, SDL_Event *event);
 i32 main()
 {
   State state;
-  state.running = true;
+  state.running = TRUE;
 
   SDL_Window *window;
   SDL_GLContext context;
@@ -62,9 +63,9 @@ i32 main()
   R_Vertex vertices[4] =
   {
     {{-0.5f,  0.5f, 0.0f},  {1.0f, 0.0f, 0.0f}}, // top left
-    {{0.5f,   0.5f, 0.0f},  {0.0f, 0.0f, 1.0f}}, // top right
-    {{0.5f,  -0.5f, 0.0f},  {0.0f, 1.0f, 0.0f}}, // bottom right
-    {{-0.5f, -0.5f, 0.0f},  {1.0f, 1.0f, 0.0f}} // bottom left
+    {{ 0.5f,  0.5f, 0.0f},  {0.0f, 0.0f, 1.0f}}, // top right
+    {{ 0.5f, -0.5f, 0.0f},  {0.0f, 1.0f, 0.0f}}, // bottom right
+    {{-0.5f, -0.5f, 0.0f},  {1.0f, 1.0f, 0.0f}}  // bottom left
   };
 
   u16 indices[6] = 
@@ -73,19 +74,19 @@ i32 main()
     1, 2, 3  // second triangle
   };
 
-  R_Object v_arr = r_create_vertex_array(2);
-  R_Object v_buf = r_create_buffer(R_BufferType_V, vertices, sizeof (vertices));
-  R_Object i_buf = r_create_buffer(R_BufferType_I, indices, sizeof (indices));
+  R_Object vert_arr = r_create_vertex_array(2);
+  R_Object vert_buf = r_create_buffer(vertices, sizeof (vertices), R_BufferType_V);
+  R_Object index_buf = r_create_buffer(indices, sizeof (indices), R_BufferType_I);
 
-  r_bind_vertex_array(&v_arr);
-  r_bind_buffer(R_BufferType_V, &v_buf);
-  r_bind_buffer(R_BufferType_I, &i_buf);
+  r_bind_vertex_array(&vert_arr);
+  r_bind_buffer(&vert_buf, R_BufferType_V);
+  r_bind_buffer(&index_buf, R_BufferType_I);
 
-  R_Layout position_layout = r_add_vertex_layout(&v_arr, GL_FLOAT, 3);
-  R_Layout color_layout = r_add_vertex_layout(&v_arr, GL_FLOAT, 3);
+  R_Layout vert_pos_layout = r_add_vertex_layout(&vert_arr, GL_FLOAT, 3);
+  R_Layout vert_col_layout = r_add_vertex_layout(&vert_arr, GL_FLOAT, 3);
 
-  r_set_vertex_layout(&v_arr, &position_layout);
-  r_set_vertex_layout(&v_arr, &color_layout);
+  r_set_vertex_layout(&vert_arr, &vert_pos_layout);
+  r_set_vertex_layout(&vert_arr, &vert_col_layout);
 
   // Unbind everything
   r_unbind_shader();
@@ -93,8 +94,8 @@ i32 main()
   r_unbind_buffer(R_BufferType_V);
   r_unbind_buffer(R_BufferType_I);
 
-  state.running = true;
-  state.first_frame = true;
+  state.running = TRUE;
+  state.first_frame = TRUE;
 
   // Main loop
   while (state.running)
@@ -111,20 +112,17 @@ i32 main()
       }
     }
 
-    // Update position
-    // r_set_uniform(&shader, (i8 *) "u_pos", vec2f(1.f, 1.f));
-
     d_clear(vec4f(0.1f, 0.1f, 0.1f, 1.0f));
 
     // Draw rectangle
     r_bind_shader(&shader);
-    r_bind_vertex_array(&v_arr);
+    r_bind_vertex_array(&vert_arr);
     R_ASSERT(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void *) 0));
 
     // Swap front and back buffers of window
     SDL_GL_SwapWindow(window);
 
-    state.first_frame = false;
+    state.first_frame = FALSE;
 
     u64 frame_end = SDL_GetTicks64();
     u64 frame_time = frame_end - frame_start;
@@ -142,12 +140,12 @@ void handle_input(State *state, SDL_Event *event)
 {
   switch (event->type)
   {
-    case SDL_QUIT: { state->running = false; } break;
+    case SDL_QUIT: { state->running = FALSE; } break;
     case SDL_KEYDOWN: 
     {
       switch (event->key.keysym.scancode)
       {
-        case SDL_SCANCODE_ESCAPE: { state->running = false; } break;
+        case SDL_SCANCODE_ESCAPE: { state->running = FALSE; } break;
         default: break;
       }
       break;

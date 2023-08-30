@@ -6,12 +6,14 @@
 #include "common.h"
 #include "util.h"
 
+typedef struct R_Vertex R_Vertex;
 struct R_Vertex
 {
   f32 position[3];
   f32 color[3];
 };
 
+typedef struct R_Object R_Object;
 struct R_Object
 {
   u32 id;
@@ -19,6 +21,7 @@ struct R_Object
   u8 attrib_index;
 };
 
+typedef struct R_Layout R_Layout;
 struct R_Layout
 {
   u32 index;
@@ -29,20 +32,17 @@ struct R_Layout
   void *first;
 };
 
+typedef struct R_Shader R_Shader;
 struct R_Shader
 {
   u32 id;
 };
 
-struct R_Texture2D
+typedef enum R_BufferType
 {
-  u32 id;
-  i32 width;
-  i32 height;
-};
-
-#define R_BufferType_V 0
-#define R_BufferType_I 1
+  R_BufferType_V = 0,
+  R_BufferType_I = 1
+} R_BufferType;
 
 #define DEBUG
 
@@ -50,7 +50,7 @@ struct R_Texture2D
 #define R_ASSERT(call) \
   _r_clear_error(); \
   call; \
-  ASSERT(_r_check_error())
+  ASSERT(!_r_check_error())
 #else
 #define R_ASSERT(call) \
   call;
@@ -61,23 +61,22 @@ void _r_clear_error();
 
 // Shader ----------------------------------------------------------------------
 
-R_Shader r_create_shader(i8 *vert_src, i8 *frag_src);
+R_Shader r_create_shader(const i8 *vert_src, const i8 *frag_src);
 void r_bind_shader(R_Shader *shader);
 void r_unbind_shader();
-i32 r_set_uniform(R_Shader *shader, i8 *name, u32 val);
-i32 r_set_uniform(R_Shader *shader, i8 *name, i32 val);
-i32 r_set_uniform(R_Shader *shader, i8 *name, f32 val);
-i32 r_set_uniform(R_Shader *shader, i8 *name, Vec2F val);
-i32 r_set_uniform(R_Shader *shader, i8 *name, Vec3F val);
-i32 r_set_uniform(R_Shader *shader, i8 *name, Vec4F val);
-i32 r_set_uniform(R_Shader *shader, i8 *name, Vec4F val);
+i32 r_set_uniform_1u(R_Shader *shader, i8 *name, u32 val);
+i32 r_set_uniform_1i(R_Shader *shader, i8 *name, i32 val);
+i32 r_set_uniform_1f(R_Shader *shader, i8 *name, f32 val);
+i32 r_set_uniform_2f(R_Shader *shader, i8 *name, Vec2F vec);
+i32 r_set_uniform_3f(R_Shader *shader, i8 *name, Vec3F vec);
+i32 r_set_uniform_4f(R_Shader *shader, i8 *name, Vec4F vec);
+i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4F mat);
 
 // Buffer ----------------------------------------------------------------------
 
-R_Object r_create_buffer(u8 type, void *data, u32 size);
-R_Object r_create_buffer(u8 type, R_Vertex *vertex, u32 size);
-void r_bind_buffer(u8 type, R_Object *buffer);
-void r_unbind_buffer(u8 type);
+R_Object r_create_buffer(void *data, u32 size, R_BufferType type);
+void r_bind_buffer(R_Object *buffer, R_BufferType type);
+void r_unbind_buffer(R_BufferType type);
 
 // Vertex Array ----------------------------------------------------------------
 
@@ -85,11 +84,12 @@ R_Object r_create_vertex_array(u8 attrib_count);
 void r_bind_vertex_array(R_Object *vertex_array);
 void r_unbind_vertex_array();
 R_Layout r_add_vertex_layout(R_Object *vertex_array, GLenum type, u32 count);
+R_Layout R_AddVertexLayout(R_Object *vertex_array, GLenum type, u32 count);
 void r_set_vertex_layout(R_Object *vertex_array, R_Layout *layout);
 
 // Texture ---------------------------------------------------------------------
 
-R_Texture2D r_create_tex2d();
+// R_Texture2D r_create_texture2d();
 
 // Draw ------------------------------------------------------------------------
 
