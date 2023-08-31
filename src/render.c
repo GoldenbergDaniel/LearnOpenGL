@@ -10,7 +10,7 @@
 
 static void r_verify_shader(u32 id, GLenum type);
 
-bool _r_check_error()
+b8 _r_check_error()
 {
   for (u32 err = -1; (err = glGetError());)
   {

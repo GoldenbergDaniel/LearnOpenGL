@@ -2,7 +2,10 @@
 
 #include <assert.h>
 
-typedef unsigned char bool;
+typedef unsigned char b8;
+typedef unsigned short b16;
+typedef unsigned int b32;
+typedef unsigned long b64;
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;

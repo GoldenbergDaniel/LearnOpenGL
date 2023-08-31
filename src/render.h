@@ -27,7 +27,7 @@ struct R_Layout
   u32 index;
   u32 count;
   GLenum data_type;
-  bool normalized;
+  b8 normalized;
   u32 stride;
   void *first;
 };
@@ -56,7 +56,7 @@ typedef enum R_BufferType
   call;
 #endif
 
-bool _r_check_error();
+b8 _r_check_error();
 void _r_clear_error();
 
 // Shader ----------------------------------------------------------------------

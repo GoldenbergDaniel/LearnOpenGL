@@ -200,7 +200,7 @@ Vec4F normalize_4f(Vec4F v)
 
 // Matrix3x3 ===================================================================
 
-Mat3x3F mat3x3f(Vec3F v1, Vec3F v2, Vec3F v3, bool row_major)
+Mat3x3F mat3x3f(Vec3F v1, Vec3F v2, Vec3F v3, b8 row_major)
 {
   Mat3x3F result;
 
@@ -284,7 +284,7 @@ Mat3x3F translate_3x3f(Vec2F v)
 
 // Matrix4x4 ===================================================================
 
-Mat4x4F mat4x4f(Vec4F v1, Vec4F v2, Vec4F v3, Vec4F v4, bool row_major)
+Mat4x4F mat4x4f(Vec4F v1, Vec4F v2, Vec4F v3, Vec4F v4, b8 row_major)
 {
   Mat4x4F result;
 

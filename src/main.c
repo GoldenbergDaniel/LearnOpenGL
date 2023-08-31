@@ -13,8 +13,8 @@
 typedef struct State State;
 struct State
 {
-  bool running;
-  bool first_frame;
+  b8 running;
+  b8 first_frame;
 };
 
 #define DEBUG
