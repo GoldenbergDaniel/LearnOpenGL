@@ -60,8 +60,6 @@ struct Mat4x4F
 // @Vector2 ====================================================================
 
 #define V2F_ZERO (Vec2F) {0.0f, 0.0f}
-#define V2F_HORIZONTAL (Vec2F) {1.0f, 0.0f}
-#define V2F_VERTICAL (Vec2F) {0.0f, 1.0f}
 
 Vec2F v2f(f32 x, f32 y);
 
@@ -84,6 +82,9 @@ Vec2F lerp_2f(Vec2F curr, Vec2F target, f32 rate);
 // @Vector3 ====================================================================
 
 #define V3F_ZERO (Vec3F) {0.0f, 0.0f, 0.0f};
+#define V2F_X (Vec2F) {1.0f, 0.0f, 0.0f}
+#define V2F_Y (Vec2F) {0.0f, 1.0f, 0.0f}
+#define V2F_Z (Vec2F) {0.0f, 0.0f, 1.0f}
 
 Vec3F v3f(f32 x, f32 y, f32 z);
 
@@ -138,8 +139,8 @@ Mat3x3F mul_3x3f(Mat3x3F a, Mat3x3F b);
 Mat3x3F transpose_3x3f(Mat3x3F m);
 Mat3x3F translate_3x3f(Vec2F v);
 Mat3x3F rotate_3x3f(f32 angle);
-Mat3x3F scale_3x3f(f32 scale);
-Mat3x3F shear_3x3f(f32 shear, Vec2F axis);
+Mat3x3F scale_3x3f(f32 x_scale, f32 y_scale);
+Mat3x3F shear_3x3f(f32 x_shear, f32 y_shear);
 
 // @Matrix4x4 ==================================================================
 
@@ -153,6 +154,6 @@ Mat4x4F mul_4x4f(Mat4x4F a, Mat4x4F b);
 
 Mat4x4F transpose_4x4f(Mat4x4F m);
 Mat4x4F translate_4x4f(Vec3F v);
-Mat4x4F rotate_4x4(f32 angle, Vec3F axis); // do we need the axis here? Yes
-Mat4x4F scale_4x4f(f32 scale);
-Mat4x4F shear_4x4f(f32 shear);
+Mat4x4F rotate_4x4(f32 angle, Vec3F axis); // Should use quaternion
+Mat4x4F scale_4x4f(f32 x_scale, f32 y_scale, f32 z_scale);
+Mat4x4F shear_4x4f(f32 x_scale, f32 y_scale, f32 z_scale);

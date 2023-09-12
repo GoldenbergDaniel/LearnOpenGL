@@ -7,15 +7,14 @@ void print_mat3x3f(Mat3x3F matrix);
 
 i32 main(void)
 {
-  Mat3x3F scale = scale_3x3f(2.0f);
-  Mat3x3F shear = shear_3x3f(3.0f, V2F_HORIZONTAL);
+  Mat3x3F scale = scale_3x3f(2.0f, 4.0f);
+  Mat3x3F shear = shear_3x3f(3.0f, 0.0f);
   Mat3x3F rotation = rotate_3x3f(90.0f);
   Mat3x3F translation = translate_3x3f(v2f(2.0f, 3.0f));
   
   Mat3x3F result = mul_3x3f(mul_3x3f(mul_3x3f(translation, rotation), shear), scale);
 
   printf("\n");
-  printf("Result\n");
   print_mat3x3f(result);
   printf("\n");
 

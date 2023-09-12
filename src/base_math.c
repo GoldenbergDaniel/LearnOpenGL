@@ -396,31 +396,29 @@ Mat3x3F translate_3x3f(Vec2F v)
 
 Mat3x3F rotate_3x3f(f32 angle)
 {
-  Mat3x3F result = m3x3f(0.0f);
+  Mat3x3F result = diagonal_3x3f(1.0f);
   result.elements[0][0] = cos(angle * (PI / 180.0f));
   result.elements[0][1] = -sin(angle * (PI / 180.0f));
   result.elements[1][0] = sin(angle * (PI / 180.0f));
   result.elements[1][1] = cos(angle * (PI / 180.0f));
-  result.elements[0][2] = 1.0f;
-  result.elements[1][2] = 1.0f;
-  result.elements[2][2] = 1.0f;
 
   return result;
 }
 
-Mat3x3F scale_3x3f(f32 scale)
-{
-  Mat3x3F result = diagonal_3x3f(scale);
-  result.elements[2][2] = 1.0f;
-
-  return result;
-}
-
-Mat3x3F shear_3x3f(f32 shear, Vec2F axis)
+Mat3x3F scale_3x3f(f32 x_scale, f32 y_scale)
 {
   Mat3x3F result = diagonal_3x3f(1.0f);
-  result.elements[0][1] = shear * axis.x;
-  result.elements[1][0] = shear * axis.y;
+  result.elements[0][0] = x_scale;
+  result.elements[1][1] = y_scale;
+
+  return result;
+}
+
+Mat3x3F shear_3x3f(f32 x_shear, f32 y_shear)
+{
+  Mat3x3F result = diagonal_3x3f(1.0f);
+  result.elements[0][1] = x_shear;
+  result.elements[1][0] = y_shear;
 
   return result;
 }
@@ -526,6 +524,16 @@ Mat4x4F translate_4x4f(Vec3F v)
   result.elements[0][3] = v.x;
   result.elements[1][3] = v.y;
   result.elements[2][3] = v.z;
+
+  return result;
+}
+
+Mat4x4F scale_4x4f(f32 x_scale, f32 y_scale, f32 z_scale)
+{
+  Mat4x4F result = diagonal_4x4f(1.0f);
+  result.elements[0][0] = x_scale;
+  result.elements[1][1] = y_scale;
+  result.elements[2][2] = z_scale;
 
   return result;
 }
