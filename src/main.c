@@ -5,8 +5,8 @@
 
 #include "glad/glad.h"
 
-#include "common.h"
-#include "math.h"
+#include "base_common.h"
+#include "base_math.h"
 #include "shaders.h"
 #include "render.h"
 
@@ -18,7 +18,7 @@ struct State
 };
 
 #define DEBUG
-// #define LOG_PERF
+#define LOG_PERF
 
 #define CENTERED SDL_WINDOWPOS_CENTERED
 #define WINDOW_FLAGS SDL_WINDOW_OPENGL
@@ -54,7 +54,7 @@ i32 main(void)
   context = SDL_GL_CreateContext(window);
   SDL_GL_MakeCurrent(window, context);
   
-  SDL_GL_SetSwapInterval(0);
+  SDL_GL_SetSwapInterval(1);
 
   gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
 
@@ -100,7 +100,7 @@ i32 main(void)
   // Main loop
   while (state.running)
   {
-    u64 frame_start = SDL_GetTicks64();
+    u64 frame_start = SDL_GetPerformanceCounter();
 
     // Handle events
     if (!state.first_frame)
@@ -112,7 +112,7 @@ i32 main(void)
       }
     }
 
-    d_clear(vec4f(0.1f, 0.1f, 0.1f, 1.0f));
+    d_clear(v4f(0.1f, 0.1f, 0.1f, 1.0f));
 
     // Draw rectangle
     r_bind_shader(&shader);
@@ -124,11 +124,12 @@ i32 main(void)
 
     state.first_frame = FALSE;
 
-    u64 frame_end = SDL_GetTicks64();
-    u64 frame_time = frame_end - frame_start;
+    u64 frame_end = SDL_GetPerformanceCounter();
+    u64 frequency = SDL_GetPerformanceFrequency();
+    f64 frame_time = (f64) (frame_end - frame_start) / frequency * 1000.0f;
 
     #ifdef LOG_PERF
-    printf("%lu ms\n", frame_time);
+    printf("%.0lf ms\n", frame_time);
     #endif
   }
 

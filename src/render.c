@@ -1,11 +1,10 @@
 #include <stdio.h>
-#include <alloca.h>
 #include <SDL2/SDL.h>
 
 #include "glad/glad.h"
 
-#include "common.h"
-#include "math.h"
+#include "base_common.h"
+#include "base_math.h"
 #include "render.h"
 
 static void r_verify_shader(u32 id, GLenum type);
@@ -153,7 +152,7 @@ void r_verify_shader(u32 id, GLenum type)
   {
     i32 length;
     glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-    i8 *log = (i8 *) alloca(length);
+    i8 log[length];
     glGetShaderInfoLog(id, length, &length, log);
 
     if (type == GL_COMPILE_STATUS)
