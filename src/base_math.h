@@ -68,7 +68,7 @@ Vec2F sub_2f(Vec2F a, Vec2F b);
 Vec2F mul_2f(Vec2F a, Vec2F b);
 Vec2F div_2f(Vec2F a, Vec2F b);
 f32 dot_2f(Vec2F a, Vec2F b);
-Vec2F cross_2f(Vec2F a, Vec2F b);
+f32 cross_2f(Vec2F a, Vec2F b);
 Vec2F scale_2f(Vec2F v, f32 scale);
 
 f32 magnitude_2f(Vec2F a);
@@ -137,6 +137,7 @@ Mat3x3F diagonal_3x3f(f32 k);
 Mat3x3F mul_3x3f(Mat3x3F a, Mat3x3F b);
 
 Mat3x3F transpose_3x3f(Mat3x3F m);
+
 Mat3x3F translate_3x3f(Vec2F v);
 Mat3x3F rotate_3x3f(f32 angle);
 Mat3x3F scale_3x3f(f32 x_scale, f32 y_scale);
@@ -153,6 +154,7 @@ Mat4x4F diagonal_4x4f(f32 k);
 Mat4x4F mul_4x4f(Mat4x4F a, Mat4x4F b);
 
 Mat4x4F transpose_4x4f(Mat4x4F m);
+
 Mat4x4F translate_4x4f(Vec3F v);
 Mat4x4F rotate_4x4(f32 angle, Vec3F axis); // Should use quaternion
 Mat4x4F scale_4x4f(f32 x_scale, f32 y_scale, f32 z_scale);

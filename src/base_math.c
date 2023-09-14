@@ -42,13 +42,11 @@ f32 dot_2f(Vec2F a, Vec2F b)
   return (a.x * b.x) + (a.y * b.y);
 }
 
-// NOTE: Could be wrong. Maybe should return a scalar
 inline
-Vec2F cross_2f(Vec2F a, Vec2F b)
+f32 cross_2f(Vec2F a, Vec2F b)
 {
-  Vec2F result;
-  result.x = (a.x * b.y);
-  result.y = -(a.y * b.x);
+  f32 result;
+  result = (a.x * b.y) -(a.y * b.x);
 
   return result;
 }
@@ -154,7 +152,7 @@ Vec3F scale_3f(Vec3F v, f32 scale)
 
 Vec3F transform_3f(Vec3F v, Mat3x3F m)
 {
-  Vec3F result;  
+  Vec3F result = {0};
   for (u8 c = 0; c < 3; c++)
   {
     result.x += m.elements[0][c] * v.elements[c];
@@ -256,7 +254,7 @@ Vec4F scale_4f(Vec4F v, f32 scale)
 
 Vec4F transform_4f(Vec4F v, Mat4x4F m)
 {
-  Vec4F result;
+  Vec4F result = {0};
   
   for (u8 c = 0; c < 4; c++)
   {
