@@ -51,11 +51,13 @@ R_Shader r_create_shader(const i8 *vert_src, const i8 *frag_src)
   return (R_Shader) {id};
 }
 
+inline
 void r_bind_shader(R_Shader *shader)
 {
   R_ASSERT(glUseProgram(shader->id));
 }
 
+inline
 void r_unbind_shader(void)
 {
   glUseProgram(0);
@@ -151,55 +153,50 @@ void r_verify_shader(u32 id, GLenum type)
 
 // @Buffer =====================================================================
 
-R_Object r_create_buffer(void *data, u32 size, R_BufferType type)
+R_Object r_create_vertex_buffer(void *data, u32 size)
 {
   u32 id;
   glGenBuffers(1, &id);
-
-  switch (type)
-  {
-    case R_BufferType_V:
-    {
-      glBindBuffer(GL_ARRAY_BUFFER, id);
-      glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-    };
-    break;
-    case R_BufferType_I:
-    {
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    };
-    break;
-    default: ASSERT(FALSE);
-  }
+  glBindBuffer(GL_ARRAY_BUFFER, id);
+  glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+  // glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   return (R_Object) {id};
 }
 
-void r_bind_buffer(R_Object *buffer, R_BufferType type)
+inline
+void r_bind_vertex_buffer(R_Object *buffer)
 {
-  switch (type)
-  {
-    case R_BufferType_V: {glBindBuffer(GL_ARRAY_BUFFER, buffer->id);};
-    break;
-    case R_BufferType_I: {glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->id);};
-    break;
-    default: ASSERT(FALSE);
-  }
+  glBindBuffer(GL_ARRAY_BUFFER, buffer->id);
 }
 
-void r_unbind_buffer(R_BufferType type)
+inline
+void r_unbind_vertex_buffer()
 {
-  switch (type)
-  {
-    case R_BufferType_V: {glBindBuffer(GL_ARRAY_BUFFER, 0);};
-    break;
-    case R_BufferType_I: {glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);};
-    break;
-    default: ASSERT(FALSE);
-  }
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+R_Object r_create_index_buffer(void *data, u32 size)
+{
+  u32 id;
+  glGenBuffers(1, &id);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+  return (R_Object) {id};
+}
+
+inline
+void r_bind_index_buffer(R_Object *buffer)
+{
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->id);
+}
+
+inline
+void r_unbind_index_buffer()
+{
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 // @VertexArray ================================================================
@@ -212,11 +209,13 @@ R_Object r_create_vertex_array(u8 attrib_count)
   return (R_Object) {id, attrib_count, 0};
 }
 
+inline
 void r_bind_vertex_array(R_Object *vertex_array)
 {
   R_ASSERT(glBindVertexArray(vertex_array->id));
 }
 
+inline
 void r_unbind_vertex_array(void)
 {
   glBindVertexArray(0);
@@ -262,7 +261,13 @@ void r_set_vertex_layout(R_Object *vertex_array, R_Layout *layout)
   R_ASSERT(glEnableVertexAttribArray(layout->index));
 }
 
-// @RenderDraw =================================================================
+// @Draw =======================================================================
+
+void r_clear(Vec4F color)
+{
+  glClearColor(color.r, color.g, color.b, color.a);
+  glClear(GL_COLOR_BUFFER_BIT);
+}
 
 void r_draw(R_Object *vertex_array, R_Shader *shader)
 {
@@ -271,12 +276,4 @@ void r_draw(R_Object *vertex_array, R_Shader *shader)
   R_ASSERT(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL));
   // r_unbind_vertex_array();
   // r_unbind_shader();
-}
-
-// @Draw =======================================================================
-
-void d_clear(Vec4F color)
-{
-  glClearColor(color.r, color.g, color.b, color.a);
-  glClear(GL_COLOR_BUFFER_BIT);
 }

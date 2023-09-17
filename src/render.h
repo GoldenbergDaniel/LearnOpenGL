@@ -44,12 +44,6 @@ struct R_Texture2D
   u32 id;
 };
 
-typedef enum R_BufferType
-{
-  R_BufferType_V = 0,
-  R_BufferType_I = 1
-} R_BufferType;
-
 #define DEBUG
 
 #ifdef DEBUG
@@ -80,9 +74,12 @@ i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4x4F mat);
 
 // @Buffer =====================================================================
 
-R_Object r_create_buffer(void *data, u32 size, R_BufferType type);
-void r_bind_buffer(R_Object *buffer, R_BufferType type);
-void r_unbind_buffer(R_BufferType type);
+R_Object r_create_vertex_buffer(void *data, u32 size);
+R_Object r_create_index_buffer(void *data, u32 size);
+void r_bind_vertex_buffer(R_Object *buffer);
+void r_unbind_vertex_buffer();
+void r_bind_index_buffer(R_Object *buffer);
+void r_unbind_index_buffer();
 
 // @VertexArray ================================================================
 
@@ -95,15 +92,9 @@ void r_set_vertex_layout(R_Object *vertex_array, R_Layout *layout);
 
 // @Texture2D ==================================================================
 
-// ...
-
-// @RenderDraw =================================================================
-
-void r_draw(R_Object *vertex_array, R_Shader *shader);
-
 R_Texture2D r_create_texture2d(void);
 
 // @Draw =======================================================================
 
-void d_clear(Vec4F color);
-void d_draw_rect(Vec2F pos, Vec2F dim, Vec2F color);
+void r_clear(Vec4F color);
+void r_draw(R_Object *vertex_array, R_Shader *shader);

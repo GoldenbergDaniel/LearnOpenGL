@@ -46,7 +46,7 @@ i32 main(void)
 
   R_Shader shader = r_create_shader(v_shader_src, f_shader_src);
 
-  R_Vertex vertices[4] =
+  R_Vertex vertices[4] = 
   {
     {{100.0f, 200.0f, 0.0f},  {1.0f, 0.0f, 0.0f}}, // top left
     {{200.0f, 200.0f, 0.0f},  {0.0f, 0.0f, 1.0f}}, // top right
@@ -61,31 +61,21 @@ i32 main(void)
   };
 
   R_Object vert_arr = r_create_vertex_array(2);
-  R_Object vert_buf = r_create_buffer(vertices, sizeof (vertices), R_BufferType_V);
-  R_Object index_buf = r_create_buffer(indices, sizeof (indices), R_BufferType_I);
-
   r_bind_vertex_array(&vert_arr);
-  r_bind_buffer(&vert_buf, R_BufferType_V);
-  r_bind_buffer(&index_buf, R_BufferType_I);
+
+R_Object vert_buf = r_create_vertex_buffer(vertices, sizeof (vertices));
+  R_Object index_buf = r_create_index_buffer(indices, sizeof (indices));
 
   R_Layout vert_pos_layout = r_add_vertex_layout(&vert_arr, GL_FLOAT, 3);
-  R_Layout vert_col_layout = r_add_vertex_layout(&vert_arr, GL_FLOAT, 3);
-
   r_set_vertex_layout(&vert_arr, &vert_pos_layout);
+  
+  R_Layout vert_col_layout = r_add_vertex_layout(&vert_arr, GL_FLOAT, 3);
   r_set_vertex_layout(&vert_arr, &vert_col_layout);
 
   // Orthographic Projection
-  // Mat4x4F proj = orthographic_4x4f(-2.0f, 2.0f, -1.5f, 1.5f);
   Mat4x4F proj = orthographic_4x4f(0.0f, 800.0f, 0.0f, 450.0f);
-
   r_bind_shader(&shader);
   r_set_uniform_4x4f(&shader, "u_proj", proj);
-
-  // Unbind everything
-  r_unbind_shader();
-  r_unbind_vertex_array();
-  r_unbind_buffer(R_BufferType_V);
-  r_unbind_buffer(R_BufferType_I);
 
   state.running = TRUE;
   state.first_frame = TRUE;
@@ -105,9 +95,8 @@ i32 main(void)
       }
     }
 
-    d_clear(v4f(0.1f, 0.1f, 0.1f, 1.0f));
-
-    // Draw rectangle
+    // Draw
+    r_clear(v4f(0.1f, 0.1f, 0.1f, 1.0f));
     r_draw(&vert_arr, &shader);
 
     // Swap front and back buffers of window
