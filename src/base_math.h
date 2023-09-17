@@ -143,6 +143,8 @@ Mat3x3F rotate_3x3f(f32 angle);
 Mat3x3F scale_3x3f(f32 x_scale, f32 y_scale);
 Mat3x3F shear_3x3f(f32 x_shear, f32 y_shear);
 
+void _print_3x3f(Mat3x3F matrix);
+
 // @Matrix4x4 ==================================================================
 
 Mat4x4F m4x4f(f32 k);
@@ -161,3 +163,5 @@ Mat4x4F scale_4x4f(f32 x_scale, f32 y_scale, f32 z_scale);
 Mat4x4F shear_4x4f(f32 x_scale, f32 y_scale, f32 z_scale);
 
 Mat4x4F orthographic_4x4f(f32 left, f32 right, f32 bot, f32 top);
+
+void _print_4x4f(Mat4x4F matrix);

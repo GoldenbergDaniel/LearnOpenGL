@@ -63,7 +63,7 @@ i32 main(void)
   R_Object vert_arr = r_create_vertex_array(2);
   r_bind_vertex_array(&vert_arr);
 
-R_Object vert_buf = r_create_vertex_buffer(vertices, sizeof (vertices));
+  R_Object vert_buf = r_create_vertex_buffer(vertices, sizeof (vertices));
   R_Object index_buf = r_create_index_buffer(indices, sizeof (indices));
 
   R_Layout vert_pos_layout = r_add_vertex_layout(&vert_arr, GL_FLOAT, 3);
@@ -72,10 +72,13 @@ R_Object vert_buf = r_create_vertex_buffer(vertices, sizeof (vertices));
   R_Layout vert_col_layout = r_add_vertex_layout(&vert_arr, GL_FLOAT, 3);
   r_set_vertex_layout(&vert_arr, &vert_col_layout);
 
-  // Orthographic Projection
+  // Model-View-Projection Matrix
+  Mat4x4F model = diagonal_4x4f(1.0f);
+  Mat4x4F view = diagonal_4x4f(1.0f);
   Mat4x4F proj = orthographic_4x4f(0.0f, 800.0f, 0.0f, 450.0f);
+  Mat4x4F mvp = mul_4x4f(mul_4x4f(proj, view), model);
   r_bind_shader(&shader);
-  r_set_uniform_4x4f(&shader, "u_proj", proj);
+  r_set_uniform_4x4f(&shader, "u_proj", mvp);
 
   state.running = TRUE;
   state.first_frame = TRUE;
@@ -83,7 +86,9 @@ R_Object vert_buf = r_create_vertex_buffer(vertices, sizeof (vertices));
   // Main loop
   while (state.running)
   {
+    #ifdef LOG_PERF
     u64 frame_start = SDL_GetPerformanceCounter();
+    #endif
 
     // Handle events
     if (!state.first_frame)
@@ -104,14 +109,17 @@ R_Object vert_buf = r_create_vertex_buffer(vertices, sizeof (vertices));
 
     state.first_frame = FALSE;
 
+    #ifdef LOG_PERF
     u64 frame_end = SDL_GetPerformanceCounter();
     u64 frequency = SDL_GetPerformanceFrequency();
     f64 frame_time = (f64) (frame_end - frame_start) / frequency * 1000.0f;
 
-    #ifdef LOG_PERF
     printf("%.2lf ms\n", frame_time);
     #endif
   }
+
+  SDL_DestroyWindow(window);
+  SDL_Quit();
 
   return 0;
 }

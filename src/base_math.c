@@ -355,7 +355,7 @@ Mat3x3F diagonal_3x3f(f32 k)
 
 Mat3x3F mul_3x3f(Mat3x3F a, Mat3x3F b)
 {
-  Mat3x3F result = m3x3f(0.0f);
+  Mat3x3F result = {0};
 
   for (u8 r = 0; r < 3; r++)
   {
@@ -421,6 +421,19 @@ Mat3x3F shear_3x3f(f32 x_shear, f32 y_shear)
   return result;
 }
 
+void _print_3x3f(Mat3x3F matrix)
+{
+  for (u8 r = 0; r < 3; r++)
+  {
+    for (u8 c = 0; c < 3; c++)
+    {
+      printf("%.1f ", matrix.elements[r][c]);
+    }
+
+    printf("\n");
+  }
+}
+
 // @Matrix4x4 ==================================================================
 
 inline
@@ -481,7 +494,7 @@ Mat4x4F diagonal_4x4f(f32 k)
 
 Mat4x4F mul_4x4f(Mat4x4F a, Mat4x4F b)
 {
-  Mat4x4F result;
+  Mat4x4F result = {0.0f};
 
   for (u8 r = 0; r < 4; r++)
   {
@@ -551,4 +564,17 @@ Mat4x4F orthographic_4x4f(f32 left, f32 right, f32 bot, f32 top)
   result.elements[3][3] = 1.0f;
 
   return result;
+}
+
+void _print_4x4f(Mat4x4F matrix)
+{
+  for (u8 r = 0; r < 4; r++)
+  {
+    for (u8 c = 0; c < 4; c++)
+    {
+      printf("%.4f ", matrix.elements[r][c]);
+    }
+
+    printf("\n");
+  }
 }

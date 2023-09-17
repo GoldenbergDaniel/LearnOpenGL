@@ -3,6 +3,10 @@
 
 #include "glad/glad.h"
 
+#define STBI_ONLY_PNG
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+
 #include "base_common.h"
 #include "base_math.h"
 #include "render.h"
@@ -223,14 +227,14 @@ void r_unbind_vertex_array(void)
 
 R_Layout r_add_vertex_layout(R_Object *vertex_array, GLenum type, u32 count)
 {
-  u8 type_size;
+  u8 type_size = 1;
   switch (type)
   {
     case GL_BYTE: {type_size = sizeof (i8);} break;
     case GL_SHORT: {type_size = sizeof (i16);} break;
     case GL_INT: {type_size = sizeof (i32);} break;
     case GL_FLOAT: {type_size = sizeof (f32);} break;
-    default: type_size = 1;
+    default: ASSERT(FALSE);
   }
 
   R_Layout layout =
