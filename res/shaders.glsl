@@ -1,15 +1,18 @@
 // Vertex Shader
 #version 410 core
 
-layout (location = 0) in vec3 pos;
-uniform vec2 u_pos;
+layout (location = 0) in vec3 a_pos;
+layout (location = 1) in vec3 a_color;
+
+uniform mat4 u_proj;
+
+out vec3 color;
 
 void main()
 {
-  pos.x += u_pos.x;
-  pos.y += u_pos.y;
-  gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
-};
+  gl_Position = u_proj * vec4(a_pos, 1.0);
+  color = a_color;
+}
 
 // Fragment Shader
 #version 410 core
@@ -20,4 +23,4 @@ out vec4 frag_color;
 void main()
 {
   frag_color = vec4(color, 1.0);
-};
+}

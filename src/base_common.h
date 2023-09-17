@@ -20,4 +20,8 @@ typedef double f64;
 #define FALSE 0
 #define TRUE 1
 
+#define VSYNC_AUTO -1
+#define VSYNC_OFF 0
+#define VSYNC_ON 1
+
 #define ASSERT(exp) assert(exp)

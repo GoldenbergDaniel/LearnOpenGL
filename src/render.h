@@ -38,6 +38,12 @@ struct R_Shader
   u32 id;
 };
 
+typedef struct R_Texture2D R_Texture2D;
+struct R_Texture2D
+{
+  u32 id;
+};
+
 typedef enum R_BufferType
 {
   R_BufferType_V = 0,
@@ -56,14 +62,14 @@ typedef enum R_BufferType
   call;
 #endif
 
-b8 _r_check_error();
-void _r_clear_error();
+b8 _r_check_error(void);
+void _r_clear_error(void);
 
-// Shader ----------------------------------------------------------------------
+// @Shader =====================================================================
 
 R_Shader r_create_shader(const i8 *vert_src, const i8 *frag_src);
 void r_bind_shader(R_Shader *shader);
-void r_unbind_shader();
+void r_unbind_shader(void);
 i32 r_set_uniform_1u(R_Shader *shader, i8 *name, u32 val);
 i32 r_set_uniform_1i(R_Shader *shader, i8 *name, i32 val);
 i32 r_set_uniform_1f(R_Shader *shader, i8 *name, f32 val);
@@ -72,26 +78,32 @@ i32 r_set_uniform_3f(R_Shader *shader, i8 *name, Vec3F vec);
 i32 r_set_uniform_4f(R_Shader *shader, i8 *name, Vec4F vec);
 i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4x4F mat);
 
-// Buffer ----------------------------------------------------------------------
+// @Buffer =====================================================================
 
 R_Object r_create_buffer(void *data, u32 size, R_BufferType type);
 void r_bind_buffer(R_Object *buffer, R_BufferType type);
 void r_unbind_buffer(R_BufferType type);
 
-// Vertex Array ----------------------------------------------------------------
+// @VertexArray ================================================================
 
 R_Object r_create_vertex_array(u8 attrib_count);
 void r_bind_vertex_array(R_Object *vertex_array);
-void r_unbind_vertex_array();
+void r_unbind_vertex_array(void);
 R_Layout r_add_vertex_layout(R_Object *vertex_array, GLenum type, u32 count);
 R_Layout R_AddVertexLayout(R_Object *vertex_array, GLenum type, u32 count);
 void r_set_vertex_layout(R_Object *vertex_array, R_Layout *layout);
 
-// Texture ---------------------------------------------------------------------
+// @Texture2D ==================================================================
 
-// R_Texture2D r_create_texture2d();
+// ...
 
-// Draw ------------------------------------------------------------------------
+// @RenderDraw =================================================================
+
+void r_draw(R_Object *vertex_array, R_Shader *shader);
+
+R_Texture2D r_create_texture2d(void);
+
+// @Draw =======================================================================
 
 void d_clear(Vec4F color);
 void d_draw_rect(Vec2F pos, Vec2F dim, Vec2F color);

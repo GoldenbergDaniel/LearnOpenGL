@@ -9,7 +9,7 @@
 
 static void r_verify_shader(u32 id, GLenum type);
 
-b8 _r_check_error()
+b8 _r_check_error(void)
 {
   for (u32 err = -1; (err = glGetError());)
   {
@@ -20,12 +20,12 @@ b8 _r_check_error()
   return FALSE;
 }
 
-void _r_clear_error()
+void _r_clear_error(void)
 {
   while (glGetError() != GL_NO_ERROR);
 }
 
-// Shader ----------------------------------------------------------------------
+// @Shader =====================================================================
 
 R_Shader r_create_shader(const i8 *vert_src, const i8 *frag_src)
 {
@@ -56,7 +56,7 @@ void r_bind_shader(R_Shader *shader)
   R_ASSERT(glUseProgram(shader->id));
 }
 
-void r_unbind_shader()
+void r_unbind_shader(void)
 {
   glUseProgram(0);
 }
@@ -69,7 +69,7 @@ i32 r_set_uniform_1u(R_Shader *shader, i8 *name, u32 val)
   return loc;
 }
 
-i32 r_set_uniform_1i(R_Shader *shader, i8 *name, i32 val)
+i32 r_set_uniform_1(R_Shader *shader, i8 *name, i32 val)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform1i(loc, val);
@@ -111,27 +111,8 @@ i32 r_set_uniform_4f(R_Shader *shader, i8 *name, Vec4F vec)
 
 i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4x4F mat)
 {
-  // NOTE: Column-major order
-  f32 matrix[16];
-  matrix[0] = mat.elements[0][0];
-  matrix[1] = mat.elements[1][0];
-  matrix[2] = mat.elements[2][0];
-  matrix[2] = mat.elements[3][0];
-  matrix[0] = mat.elements[0][1];
-  matrix[1] = mat.elements[1][1];
-  matrix[2] = mat.elements[2][1];
-  matrix[2] = mat.elements[3][1];
-  matrix[0] = mat.elements[0][2];
-  matrix[1] = mat.elements[1][2];
-  matrix[2] = mat.elements[2][2];
-  matrix[2] = mat.elements[3][2];
-  matrix[0] = mat.elements[0][3];
-  matrix[1] = mat.elements[1][3];
-  matrix[2] = mat.elements[2][3];
-  matrix[2] = mat.elements[3][3];
-
   i32 loc = glGetUniformLocation(shader->id, name);
-  glUniformMatrix4fv(loc, 16, FALSE, matrix);
+  glUniformMatrix4fv(loc, 1, FALSE, &mat.elements[0][0]);
   
   return loc;
 }
@@ -168,7 +149,7 @@ void r_verify_shader(u32 id, GLenum type)
   }
 }
 
-// Buffer ----------------------------------------------------------------------
+// @Buffer =====================================================================
 
 R_Object r_create_buffer(void *data, u32 size, R_BufferType type)
 {
@@ -221,7 +202,7 @@ void r_unbind_buffer(R_BufferType type)
   }
 }
 
-// Vertex Array ----------------------------------------------------------------
+// @VertexArray ================================================================
 
 R_Object r_create_vertex_array(u8 attrib_count)
 {
@@ -236,7 +217,7 @@ void r_bind_vertex_array(R_Object *vertex_array)
   R_ASSERT(glBindVertexArray(vertex_array->id));
 }
 
-void r_unbind_vertex_array()
+void r_unbind_vertex_array(void)
 {
   glBindVertexArray(0);
 }
@@ -281,7 +262,18 @@ void r_set_vertex_layout(R_Object *vertex_array, R_Layout *layout)
   R_ASSERT(glEnableVertexAttribArray(layout->index));
 }
 
-// Draw ------------------------------------------------------------------------
+// @RenderDraw =================================================================
+
+void r_draw(R_Object *vertex_array, R_Shader *shader)
+{
+  r_bind_shader(shader);
+  r_bind_vertex_array(vertex_array);
+  R_ASSERT(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL));
+  // r_unbind_vertex_array();
+  // r_unbind_shader();
+}
+
+// @Draw =======================================================================
 
 void d_clear(Vec4F color)
 {

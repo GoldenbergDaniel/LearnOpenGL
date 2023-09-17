@@ -18,43 +18,29 @@ struct State
 };
 
 #define DEBUG
-#define LOG_PERF
+// #define LOG_PERF
 
 #define CENTERED SDL_WINDOWPOS_CENTERED
 #define WINDOW_FLAGS SDL_WINDOW_OPENGL
 
+static void set_gl_attributes();
 static void handle_input(State *state, SDL_Event *event);
 
 i32 main(void)
 {
   State state;
-  state.running = TRUE;
-
   SDL_Window *window;
   SDL_GLContext context;
 
   SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
-
-  SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-  SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-  SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-  SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
-
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+  set_gl_attributes();
 
   window = SDL_CreateWindow("OPENGL", CENTERED, CENTERED, 800, 450, WINDOW_FLAGS);
   context = SDL_GL_CreateContext(window);
   SDL_GL_MakeCurrent(window, context);
   
-  SDL_GL_SetSwapInterval(1);
+  SDL_GL_SetSwapInterval(VSYNC_ON);
 
   gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
 
@@ -62,10 +48,10 @@ i32 main(void)
 
   R_Vertex vertices[4] =
   {
-    {{-0.5f,  0.5f, 0.0f},  {1.0f, 0.0f, 0.0f}}, // top left
-    {{ 0.5f,  0.5f, 0.0f},  {0.0f, 0.0f, 1.0f}}, // top right
-    {{ 0.5f, -0.5f, 0.0f},  {0.0f, 1.0f, 0.0f}}, // bottom right
-    {{-0.5f, -0.5f, 0.0f},  {1.0f, 1.0f, 0.0f}}  // bottom left
+    {{100.0f, 200.0f, 0.0f},  {1.0f, 0.0f, 0.0f}}, // top left
+    {{200.0f, 200.0f, 0.0f},  {0.0f, 0.0f, 1.0f}}, // top right
+    {{200.0f, 100.0f, 0.0f},  {0.0f, 1.0f, 0.0f}}, // bottom right
+    {{100.0f, 100.0f, 0.0f},  {1.0f, 1.0f, 0.0f}}  // bottom left
   };
 
   u16 indices[6] = 
@@ -87,6 +73,13 @@ i32 main(void)
 
   r_set_vertex_layout(&vert_arr, &vert_pos_layout);
   r_set_vertex_layout(&vert_arr, &vert_col_layout);
+
+  // Orthographic Projection
+  // Mat4x4F proj = orthographic_4x4f(-2.0f, 2.0f, -1.5f, 1.5f);
+  Mat4x4F proj = orthographic_4x4f(0.0f, 800.0f, 0.0f, 450.0f);
+
+  r_bind_shader(&shader);
+  r_set_uniform_4x4f(&shader, "u_proj", proj);
 
   // Unbind everything
   r_unbind_shader();
@@ -115,9 +108,7 @@ i32 main(void)
     d_clear(v4f(0.1f, 0.1f, 0.1f, 1.0f));
 
     // Draw rectangle
-    r_bind_shader(&shader);
-    r_bind_vertex_array(&vert_arr);
-    R_ASSERT(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void *) 0));
+    r_draw(&vert_arr, &shader);
 
     // Swap front and back buffers of window
     SDL_GL_SwapWindow(window);
@@ -129,7 +120,7 @@ i32 main(void)
     f64 frame_time = (f64) (frame_end - frame_start) / frequency * 1000.0f;
 
     #ifdef LOG_PERF
-    printf("%.0lf ms\n", frame_time);
+    printf("%.2lf ms\n", frame_time);
     #endif
   }
 
@@ -153,4 +144,21 @@ void handle_input(State *state, SDL_Event *event)
     }
     default: break;
   }
+}
+
+static inline
+void set_gl_attributes()
+{
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+  SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+  SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+  SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+  SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 }
