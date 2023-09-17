@@ -535,3 +535,20 @@ Mat4x4F scale_4x4f(f32 x_scale, f32 y_scale, f32 z_scale)
 
   return result;
 }
+
+Mat4x4F orthographic_4x4f(f32 left, f32 right, f32 bot, f32 top)
+{
+  f32 near = -1.0f;
+  f32 far = 1.0f;
+
+  Mat4x4F result = m4x4f(0.0f);
+  result.elements[0][0] = 2.0f / (right - left);
+  result.elements[1][1] = 2.0f / (top - bot);
+  result.elements[2][2] = -2.0f / (far - near);
+  result.elements[0][3] = -(right + left) / (right - left);
+  result.elements[1][3] = -(top + bot) / (top - bot);
+  result.elements[2][3] = -(far + near) / (far - near);
+  result.elements[3][3] = 1.0f;
+
+  return result;
+}

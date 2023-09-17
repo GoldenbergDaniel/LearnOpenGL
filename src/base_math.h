@@ -159,3 +159,5 @@ Mat4x4F translate_4x4f(Vec3F v);
 Mat4x4F rotate_4x4(f32 angle, Vec3F axis); // Should use quaternion
 Mat4x4F scale_4x4f(f32 x_scale, f32 y_scale, f32 z_scale);
 Mat4x4F shear_4x4f(f32 x_scale, f32 y_scale, f32 z_scale);
+
+Mat4x4F orthographic_4x4f(f32 left, f32 right, f32 bot, f32 top);
