@@ -17,13 +17,15 @@ struct State
   b8 first_frame;
 };
 
-#define DEBUG
+// #define DEBUG
 // #define LOG_PERF
 
 #define CENTERED SDL_WINDOWPOS_CENTERED
-#define WINDOW_FLAGS SDL_WINDOW_OPENGL
+#define WIDTH 800
+#define HEIGHT 450
+#define FLAGS SDL_WINDOW_OPENGL
 
-static void set_gl_attributes();
+static void set_gl_attributes(void);
 static void handle_input(State *state, SDL_Event *event);
 
 i32 main(void)
@@ -36,11 +38,11 @@ i32 main(void)
 
   set_gl_attributes();
 
-  window = SDL_CreateWindow("OPENGL", CENTERED, CENTERED, 800, 450, WINDOW_FLAGS);
+  window = SDL_CreateWindow("OPENGL", CENTERED, CENTERED, WIDTH, HEIGHT, FLAGS);
   context = SDL_GL_CreateContext(window);
   SDL_GL_MakeCurrent(window, context);
   
-  SDL_GL_SetSwapInterval(VSYNC_ON);
+  SDL_GL_SetSwapInterval(VSYNC_OFF);
 
   gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
 
@@ -48,10 +50,10 @@ i32 main(void)
 
   R_Vertex vertices[4] = 
   {
-    {{100.0f, 200.0f, 0.0f},  {1.0f, 0.0f, 0.0f}}, // top left
-    {{200.0f, 200.0f, 0.0f},  {0.0f, 0.0f, 1.0f}}, // top right
-    {{200.0f, 100.0f, 0.0f},  {0.0f, 1.0f, 0.0f}}, // bottom right
-    {{100.0f, 100.0f, 0.0f},  {1.0f, 1.0f, 0.0f}}  // bottom left
+    {{-50.0f,  50.0f, 1.0f},  {1.0f, 0.0f, 0.0f}}, // top left
+    {{ 50.0f,  50.0f, 1.0f},  {0.0f, 0.0f, 1.0f}}, // top right
+    {{ 50.0f, -50.0f, 1.0f},  {0.0f, 1.0f, 0.0f}}, // bottom right
+    {{-50.0f, -50.0f, 1.0f},  {1.0f, 1.0f, 0.0f}}  // bottom left
   };
 
   u16 indices[6] = 
@@ -61,24 +63,14 @@ i32 main(void)
   };
 
   R_Object vert_arr = r_create_vertex_array(2);
-  r_bind_vertex_array(&vert_arr);
-
-  R_Object vert_buf = r_create_vertex_buffer(vertices, sizeof (vertices));
-  R_Object index_buf = r_create_index_buffer(indices, sizeof (indices));
+  r_create_vertex_buffer(vertices, sizeof (vertices));
+  r_create_index_buffer(indices, sizeof (indices));
 
   R_Layout vert_pos_layout = r_add_vertex_layout(&vert_arr, GL_FLOAT, 3);
-  r_set_vertex_layout(&vert_arr, &vert_pos_layout);
+  r_set_vertex_layout(&vert_pos_layout);
   
   R_Layout vert_col_layout = r_add_vertex_layout(&vert_arr, GL_FLOAT, 3);
-  r_set_vertex_layout(&vert_arr, &vert_col_layout);
-
-  // Model-View-Projection Matrix
-  Mat4x4F model = diagonal_4x4f(1.0f);
-  Mat4x4F view = diagonal_4x4f(1.0f);
-  Mat4x4F proj = orthographic_4x4f(0.0f, 800.0f, 0.0f, 450.0f);
-  Mat4x4F mvp = mul_4x4f(mul_4x4f(proj, view), model);
-  r_bind_shader(&shader);
-  r_set_uniform_4x4f(&shader, "u_proj", mvp);
+  r_set_vertex_layout(&vert_col_layout);
 
   state.running = TRUE;
   state.first_frame = TRUE;
@@ -99,6 +91,24 @@ i32 main(void)
         handle_input(&state, &event);
       }
     }
+
+    // Update
+    u64 t = SDL_GetTicks64();
+
+    Mat3x3F sprite = m3x3f(1.0f);
+    sprite = mul_3x3f(scale_3x3f(1.0f, 1.0f), sprite);
+    sprite = mul_3x3f(shear_3x3f(sin(t * 0.005f), cos(t * 0.005f)), sprite);
+    sprite = mul_3x3f(rotate_3x3f(t * 0.05f), sprite);
+
+    Mat3x3F camera = m3x3f(1.0f);
+    camera = mul_3x3f(translate_3x3f(WIDTH/2.0f, HEIGHT/2.0f), camera);
+
+    Mat3x3F projection = m3x3f(1.0f);
+    projection = mul_3x3f(orthographic_3x3f(0.0f, WIDTH, 0.0f, HEIGHT), projection);
+
+    Mat3x3F scp = mul_3x3f(mul_3x3f(projection, camera), sprite);
+    r_bind_shader(&shader);
+    r_set_uniform_3x3f(&shader, "u_xform", scp);
 
     // Draw
     r_clear(v4f(0.1f, 0.1f, 0.1f, 1.0f));
@@ -143,8 +153,8 @@ void handle_input(State *state, SDL_Event *event)
   }
 }
 
-static inline
-void set_gl_attributes()
+static
+void set_gl_attributes(void)
 {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);

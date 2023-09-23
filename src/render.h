@@ -70,6 +70,7 @@ i32 r_set_uniform_1f(R_Shader *shader, i8 *name, f32 val);
 i32 r_set_uniform_2f(R_Shader *shader, i8 *name, Vec2F vec);
 i32 r_set_uniform_3f(R_Shader *shader, i8 *name, Vec3F vec);
 i32 r_set_uniform_4f(R_Shader *shader, i8 *name, Vec4F vec);
+i32 r_set_uniform_3x3f(R_Shader *shader, i8 *name, Mat3x3F mat);
 i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4x4F mat);
 
 // @Buffer =====================================================================
@@ -77,9 +78,9 @@ i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4x4F mat);
 R_Object r_create_vertex_buffer(void *data, u32 size);
 R_Object r_create_index_buffer(void *data, u32 size);
 void r_bind_vertex_buffer(R_Object *buffer);
-void r_unbind_vertex_buffer();
+void r_unbind_vertex_buffer(void);
 void r_bind_index_buffer(R_Object *buffer);
-void r_unbind_index_buffer();
+void r_unbind_index_buffer(void);
 
 // @VertexArray ================================================================
 
@@ -87,8 +88,7 @@ R_Object r_create_vertex_array(u8 attrib_count);
 void r_bind_vertex_array(R_Object *vertex_array);
 void r_unbind_vertex_array(void);
 R_Layout r_add_vertex_layout(R_Object *vertex_array, GLenum type, u32 count);
-R_Layout R_AddVertexLayout(R_Object *vertex_array, GLenum type, u32 count);
-void r_set_vertex_layout(R_Object *vertex_array, R_Layout *layout);
+void r_set_vertex_layout(R_Layout *layout);
 
 // @Texture2D ==================================================================
 

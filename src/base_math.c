@@ -239,13 +239,6 @@ f32 dot_4f(Vec4F a, Vec4F b)
   return (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.w * b.w);
 }
 
-// NOTE: Need to implement
-inline
-Vec4F cross_4f(Vec4F a, Vec4F b)
-{
-  return (Vec4F) {0};
-}
-
 inline
 Vec4F scale_4f(Vec4F v, f32 scale)
 {
@@ -255,7 +248,7 @@ Vec4F scale_4f(Vec4F v, f32 scale)
 Vec4F transform_4f(Vec4F v, Mat4x4F m)
 {
   Vec4F result = {0};
-  
+  \
   for (u8 c = 0; c < 4; c++)
   {
     result.x += m.elements[0][c] * v.elements[c];
@@ -307,15 +300,15 @@ Mat3x3F m3x3f(f32 k)
   return (Mat3x3F)
   {
     {
-      {k, k, k},
-      {k, k, k},
-      {k, k, k},
+      {k, 0, 0},
+      {0, k, 0},
+      {0, 0, k}
     }
   };
 }
 
 inline
-Mat3x3F rows_3x3f(Vec3F v1, Vec3F v2, Vec3F v3, Vec3F v4)
+Mat3x3F rows_3x3f(Vec3F v1, Vec3F v2, Vec3F v3)
 {
   return (Mat3x3F)
   {
@@ -328,7 +321,7 @@ Mat3x3F rows_3x3f(Vec3F v1, Vec3F v2, Vec3F v3, Vec3F v4)
 }
 
 inline
-Mat3x3F cols_3x3f(Vec3F v1, Vec3F v2, Vec3F v3,Vec3F v4)
+Mat3x3F cols_3x3f(Vec3F v1, Vec3F v2, Vec3F v3)
 {
   return (Mat3x3F)
   {
@@ -336,19 +329,6 @@ Mat3x3F cols_3x3f(Vec3F v1, Vec3F v2, Vec3F v3,Vec3F v4)
       {v1.x, v2.x, v3.x},
       {v1.y, v2.y, v3.y},
       {v1.z, v2.z, v3.z}
-    }
-  };
-}
-
-inline
-Mat3x3F diagonal_3x3f(f32 k)
-{
-  return (Mat3x3F)
-  {
-    {
-      {k, 0, 0},
-      {0, k, 0},
-      {0, 0, k}
     }
   };
 }
@@ -361,9 +341,9 @@ Mat3x3F mul_3x3f(Mat3x3F a, Mat3x3F b)
   {
     for (u8 c = 0; c < 3; c++)
     {
-      result.elements[r][c] += b.elements[0][c] * a.elements[r][0];
-      result.elements[r][c] += b.elements[1][c] * a.elements[r][1];
-      result.elements[r][c] += b.elements[2][c] * a.elements[r][2];
+      result.elements[r][c] += a.elements[r][0] * b.elements[0][c];
+      result.elements[r][c] += a.elements[r][1] * b.elements[1][c];
+      result.elements[r][c] += a.elements[r][2] * b.elements[2][c];
     }
   }
 
@@ -383,18 +363,18 @@ Mat3x3F transpose_3x3f(Mat3x3F m)
   return result;
 }
 
-Mat3x3F translate_3x3f(Vec2F v)
+Mat3x3F translate_3x3f(f32 x_shift, f32 y_shift)
 {
-  Mat3x3F result = diagonal_3x3f(1.0f);
-  result.elements[0][2] = v.x;
-  result.elements[1][2] = v.y;
+  Mat3x3F result = m3x3f(1.0f);
+  result.elements[0][2] = x_shift;
+  result.elements[1][2] = y_shift;
 
   return result;
 }
 
 Mat3x3F rotate_3x3f(f32 angle)
 {
-  Mat3x3F result = diagonal_3x3f(1.0f);
+  Mat3x3F result = m3x3f(1.0f);
   result.elements[0][0] = cos(angle * (PI / 180.0f));
   result.elements[0][1] = -sin(angle * (PI / 180.0f));
   result.elements[1][0] = sin(angle * (PI / 180.0f));
@@ -405,7 +385,7 @@ Mat3x3F rotate_3x3f(f32 angle)
 
 Mat3x3F scale_3x3f(f32 x_scale, f32 y_scale)
 {
-  Mat3x3F result = diagonal_3x3f(1.0f);
+  Mat3x3F result = m3x3f(1.0f);
   result.elements[0][0] = x_scale;
   result.elements[1][1] = y_scale;
 
@@ -414,9 +394,21 @@ Mat3x3F scale_3x3f(f32 x_scale, f32 y_scale)
 
 Mat3x3F shear_3x3f(f32 x_shear, f32 y_shear)
 {
-  Mat3x3F result = diagonal_3x3f(1.0f);
+  Mat3x3F result = m3x3f(1.0f);
   result.elements[0][1] = x_shear;
   result.elements[1][0] = y_shear;
+
+  return result;
+}
+
+Mat3x3F orthographic_3x3f(f32 left, f32 right, f32 bot, f32 top)
+{
+  Mat3x3F result = m3x3f(0.0f);
+  result.elements[0][0] = 2.0f / (right - left);
+  result.elements[1][1] = 2.0f / (top - bot);
+  result.elements[0][2] = -(right + left) / (right - left);
+  result.elements[1][2] = -(top + bot) / (top - bot);
+  result.elements[2][2] = 1.0f;
 
   return result;
 }
@@ -427,14 +419,14 @@ void _print_3x3f(Mat3x3F matrix)
   {
     for (u8 c = 0; c < 3; c++)
     {
-      printf("%.1f ", matrix.elements[r][c]);
+      printf("%.4f ", matrix.elements[r][c]);
     }
 
     printf("\n");
   }
 }
 
-// @Matrix4x4 ==================================================================
+// @Matrix4x4f ==================================================================
 
 inline
 Mat4x4F m4x4f(f32 k)
@@ -442,10 +434,10 @@ Mat4x4F m4x4f(f32 k)
   return (Mat4x4F)
   {
     {
-      {k, k, k, k},
-      {k, k, k, k},
-      {k, k, k, k},
-      {k, k, k, k}
+      {k, 0, 0, 0},
+      {0, k, 0, 0},
+      {0, 0, k, 0},
+      {0, 0, 0, k}
     }
   };
 }
@@ -478,23 +470,9 @@ Mat4x4F cols_4x4f(Vec4F v1, Vec4F v2, Vec4F v3, Vec4F v4)
   };
 }
 
-inline
-Mat4x4F diagonal_4x4f(f32 k)
-{
-  return (Mat4x4F)
-  {
-    {
-      {k, 0, 0, 0},
-      {0, k, 0, 0},
-      {0, 0, k, 0},
-      {0, 0, 0, k}
-    }
-  };
-}
-
 Mat4x4F mul_4x4f(Mat4x4F a, Mat4x4F b)
 {
-  Mat4x4F result = {0.0f};
+  Mat4x4F result = {0};
 
   for (u8 r = 0; r < 4; r++)
   {
@@ -529,19 +507,19 @@ Mat4x4F transpose_4x4f(Mat4x4F m)
   return result;
 }
 
-Mat4x4F translate_4x4f(Vec3F v)
+Mat4x4F translate_4x4f(f32 x_shift, f32 y_shift, f32 z_shift)
 {
-  Mat4x4F result = diagonal_4x4f(1.0f);
-  result.elements[0][3] = v.x;
-  result.elements[1][3] = v.y;
-  result.elements[2][3] = v.z;
+  Mat4x4F result = m4x4f(1.0f);
+  result.elements[0][3] = x_shift;
+  result.elements[1][3] = y_shift;
+  result.elements[2][3] = z_shift;
 
   return result;
 }
 
 Mat4x4F scale_4x4f(f32 x_scale, f32 y_scale, f32 z_scale)
 {
-  Mat4x4F result = diagonal_4x4f(1.0f);
+  Mat4x4F result = m4x4f(1.0f);
   result.elements[0][0] = x_scale;
   result.elements[1][1] = y_scale;
   result.elements[2][2] = z_scale;
@@ -554,7 +532,7 @@ Mat4x4F orthographic_4x4f(f32 left, f32 right, f32 bot, f32 top)
   f32 near = -1.0f;
   f32 far = 1.0f;
 
-  Mat4x4F result = m4x4f(0.0f);
+  Mat4x4F result = {0};
   result.elements[0][0] = 2.0f / (right - left);
   result.elements[1][1] = 2.0f / (top - bot);
   result.elements[2][2] = -2.0f / (far - near);

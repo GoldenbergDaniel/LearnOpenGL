@@ -1,9 +1,10 @@
 NAME = Renderer
 CC = cc
 
-CFLAGS = -Ilib/ -std=c17 -O1 -Wall \
+CFLAGS = -Ilib/ \
+				 -std=c17 -O0 \
+				 -Wall -Wextra -Wpedantic \
 				 -Wno-missing-braces \
-				 -Wno-unused-variable \
 				 -Wno-unused-function
 
 LDFLAGS = -framework OpenGL \
@@ -20,21 +21,25 @@ SRC = src/main.c \
 all: compile run
 
 compile:
-	@echo "Compiling..."
+	@echo "Compiling project..."
 	@$(CC) $(CFLAGS) $(LDFLAGS) $(LIB) $(SRC) -o $(NAME)
+	@echo "Compilation complete!"
 
 compile_t:
-	@echo "Compiling..."
-	@time $(CC) $(CFLAGS) $(LDFLAGS) $(LIB) $(SRC) -o $(NAME) 
+	@echo "Compiling timed compilation..."
+	@time $(CC) $(CFLAGS) $(LDFLAGS) $(LIB) $(SRC) -o $(NAME)
+	@echo "Compilation complete!"
 
 run:
 	./$(NAME)
 
 test:
 	@echo "Compiling test..."
-	@$(CC) $(CFLAGS) test/test_math.c src/base_math.c -o TestMath
-	./TestMath
+	@$(CC) $(CFLAGS) test/test.c src/base_math.c -o Test1
+	./Test1
 
 debug:
-	cd debug; \
+	@echo "Compiling debug..."
+	@cd debug; \
 	$(CC) -I../lib/ $(LDFLAGS) ../lib/glad/glad.c ../src/*.c -g
+	@echo "Compilation complete!"
