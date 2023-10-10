@@ -2,7 +2,7 @@
 
 #include "base_common.h"
 
-// Base Math ===================================================================
+// Base Math ================================================================================
 
 #define PI 3.141592
 
@@ -57,9 +57,9 @@ struct Mat4x4F
   f32 elements[4][4];
 };
 
-// @Vector2 ====================================================================
+// @Vector2 =================================================================================
 
-#define V2F_ZERO (Vec2F) {0.0f, 0.0f}
+#define V2F_ZERO ((Vec2F) {0.0f, 0.0f})
 
 Vec2F v2f(f32 x, f32 y);
 
@@ -79,12 +79,9 @@ Vec2F normalize_2f(Vec2F a);
 
 Vec2F lerp_2f(Vec2F curr, Vec2F target, f32 rate);
 
-// @Vector3 ====================================================================
+// @Vector3 =================================================================================
 
-#define V3F_ZERO (Vec3F) {0.0f, 0.0f, 0.0f};
-#define V3F_X (Vec3F) {1.0f, 0.0f, 0.0f}
-#define V3F_Y (Vec3F) {0.0f, 1.0f, 0.0f}
-#define V3F_Z (Vec3F) {0.0f, 0.0f, 1.0f}
+#define V3F_ZERO ((Vec3F) {0.0f, 0.0f, 0.0f})
 
 Vec3F v3f(f32 x, f32 y, f32 z);
 
@@ -105,9 +102,9 @@ Vec3F normalize_3f(Vec3F v);
 
 Vec3F lerp_3f(Vec3F curr, Vec3F target, f32 rate);
 
-// @Vector4 ====================================================================
+// @Vector4 =================================================================================
 
-#define V4F_ZERO (Vec4F) {0.0f, 0.0f, 0.0f, 0.0f};
+#define V4F_ZERO ((Vec4F) {0.0f, 0.0f, 0.0f, 0.0f})
 
 Vec4F v4f(f32 x, f32 y, f32 z, f32 w);
 
@@ -125,7 +122,7 @@ f32 distance_4f(Vec4F a, Vec4F b);
 f32 distance_squared_4f(Vec4F a, Vec4F b);
 Vec4F normalize_4f(Vec4F v);
 
-// @Matrix3x3 ==================================================================
+// @Matrix3x3 ===============================================================================
 
 Mat3x3F m3x3f(f32 k);
 
@@ -144,7 +141,7 @@ Mat3x3F orthographic_3x3f(f32 left, f32 right, f32 bot, f32 top);
 
 void _print_3x3f(Mat3x3F matrix);
 
-// @Matrix4x4 ==================================================================
+// @Matrix4x4 ===============================================================================
 
 Mat4x4F m4x4f(f32 k);
 
@@ -163,3 +160,21 @@ Mat4x4F shear_4x4f(f32 x_shear, f32 y_shear, f32 z_shear);
 Mat4x4F orthographic_4x4f(f32 left, f32 right, f32 bot, f32 top);
 
 void _print_4x4f(Mat4x4F matrix);
+
+#ifdef __cplusplus
+
+// @Overloading =============================================================================
+
+Vec2F operator+(Vec2F a, Vec2F b);
+Vec3F operator+(Vec3F a, Vec3F b);
+Vec4F operator+(Vec4F a, Vec4F b);
+Vec2F operator-(Vec2F a, Vec2F b);
+Vec3F operator-(Vec3F a, Vec3F b);
+Vec4F operator-(Vec4F a, Vec4F b);
+f32 operator*(Vec2F a, Vec2F b);
+f32 operator*(Vec3F a, Vec3F b);
+f32 operator*(Vec4F a, Vec4F b);
+Mat3x3F operator*(Mat3x3F a, Mat3x3F b);
+Mat4x4F operator*(Mat4x4F a, Mat4x4F b);
+
+#endif

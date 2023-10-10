@@ -4,7 +4,11 @@
 #include "base_common.h"
 #include "base_math.h"
 
-// @Vector2 ====================================================================
+// @Vector2 =================================================================================
+
+#define add(x, y) _Generic((x)+(y) \
+        int: x+y\
+        )((x), (y))
 
 inline
 Vec2F v2f(f32 x, f32 y)
@@ -95,7 +99,7 @@ Vec2F lerp_2f(Vec2F curr, Vec2F target, f32 rate)
   return scale_2f(sub_2f(target, curr), rate);
 }
 
-// @Vector3 ====================================================================
+// @Vector3 =================================================================================
 
 inline
 Vec3F v3f(f32 x, f32 y, f32 z)
@@ -201,7 +205,7 @@ Vec3F lerp_3f(Vec3F curr, Vec3F target, f32 rate)
   return scale_3f(sub_3f(target, curr), rate);
 }
 
-// @Vector4 ====================================================================
+// @Vector4 =================================================================================
 
 inline
 Vec4F v4f(f32 x, f32 y, f32 z, f32 w)
@@ -292,7 +296,7 @@ Vec4F normalize_4f(Vec4F v)
   return scale_4f(v, 1.0f / magnitude_4f(v));
 }
 
-// @Matrix3x3 ==================================================================
+// @Matrix3x3 ===============================================================================
 
 inline
 Mat3x3F m3x3f(f32 k)
@@ -426,7 +430,7 @@ void _print_3x3f(Mat3x3F matrix)
   }
 }
 
-// @Matrix4x4f ==================================================================
+// @Matrix4x4f ==============================================================================
 
 inline
 Mat4x4F m4x4f(f32 k)
@@ -556,3 +560,64 @@ void _print_4x4f(Mat4x4F matrix)
     printf("\n");
   }
 }
+
+#ifdef __cplusplus
+
+// @Overloading =============================================================================
+
+Vec2F operator+(Vec2F a, Vec2F b)
+{
+  return add_2f(a, b);
+}
+
+Vec3F operator+(Vec3F a, Vec3F b)
+{
+  return add_3f(a, b);
+}
+
+Vec4F operator+(Vec4F a, Vec4F b)
+{
+  return add_4f(a, b);
+}
+
+Vec2F operator-(Vec2F a, Vec2F b)
+{
+  return sub_2f(a, b);
+}
+
+Vec3F operator-(Vec3F a, Vec3F b)
+{
+  return sub_3f(a, b);
+}
+
+Vec4F operator-(Vec4F a, Vec4F b)
+{
+  return sub_4f(a, b);
+}
+
+f32 operator*(Vec2F a, Vec2F b)
+{
+  return dot_2f(a, b);
+}
+
+f32 operator*(Vec3F a, Vec3F b)
+{
+  return dot_3f(a, b);
+}
+
+f32 operator*(Vec4F a, Vec4F b)
+{
+  return dot_4f(a, b);
+}
+
+Mat3x3F operator*(Mat3x3F a, Mat3x3F b)
+{
+  return mul_3x3f(a, b);
+}
+
+Mat4x4F operator*(Mat4x4F a, Mat4x4F b)
+{
+  return mul_4x4f(a, b);
+}
+
+#endif

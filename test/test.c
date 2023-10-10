@@ -8,14 +8,9 @@
 
 i32 main(void)
 {
-  i32 a = 0;
-
-  DeferLoop (a++, 5)
-  {
-    printf("Hello, world!\n");
-  }
-
-  printf("%i\n", a);
+  Mat3x3F sprite = scale_3x3f(1.0f, 1.0f);
+  Mat3x3F camera = translate_3x3f(100.f, 100.0f);
+  Mat3x3F projection = orthographic_3x3f(0.0f, 800.0f, 0.0f, 450.0f);
 
   return 0;
 }

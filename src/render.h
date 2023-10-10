@@ -13,23 +13,23 @@ struct R_Vertex
   f32 color[3];
 };
 
+typedef struct R_VertexLayout R_VertexLayout;
+struct R_VertexLayout
+{
+  u32 index;
+  u32 count;
+  GLenum data_type;
+  bool normalized;
+  u32 stride;
+  void *first;
+};
+
 typedef struct R_Object R_Object;
 struct R_Object
 {
   u32 id;
   u8 attrib_count;
   u8 attrib_index;
-};
-
-typedef struct R_Layout R_Layout;
-struct R_Layout
-{
-  u32 index;
-  u32 count;
-  GLenum data_type;
-  b8 normalized;
-  u32 stride;
-  void *first;
 };
 
 typedef struct R_Shader R_Shader;
@@ -42,6 +42,10 @@ typedef struct R_Texture2D R_Texture2D;
 struct R_Texture2D
 {
   u32 id;
+  i32 width;
+  i32 height;
+  i32 num_channels;
+  u8 *data;
 };
 
 #define DEBUG
@@ -56,10 +60,10 @@ struct R_Texture2D
   call;
 #endif
 
-b8 _r_check_error(void);
+bool _r_check_error(void);
 void _r_clear_error(void);
 
-// @Shader =====================================================================
+// @Shader ==================================================================================
 
 R_Shader r_create_shader(const i8 *vert_src, const i8 *frag_src);
 void r_bind_shader(R_Shader *shader);
@@ -73,7 +77,7 @@ i32 r_set_uniform_4f(R_Shader *shader, i8 *name, Vec4F vec);
 i32 r_set_uniform_3x3f(R_Shader *shader, i8 *name, Mat3x3F mat);
 i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4x4F mat);
 
-// @Buffer =====================================================================
+// @Buffer ==================================================================================
 
 R_Object r_create_vertex_buffer(void *data, u32 size);
 R_Object r_create_index_buffer(void *data, u32 size);
@@ -82,19 +86,22 @@ void r_unbind_vertex_buffer(void);
 void r_bind_index_buffer(R_Object *buffer);
 void r_unbind_index_buffer(void);
 
-// @VertexArray ================================================================
+// @VertexArray =============================================================================
 
 R_Object r_create_vertex_array(u8 attrib_count);
 void r_bind_vertex_array(R_Object *vertex_array);
 void r_unbind_vertex_array(void);
-R_Layout r_add_vertex_layout(R_Object *vertex_array, GLenum type, u32 count);
-void r_set_vertex_layout(R_Layout *layout);
+R_VertexLayout r_create_vertex_layout(R_Object *v_arr, GLenum type, u32 count);
+void r_bind_vertex_layout(R_VertexLayout *layout);
 
-// @Texture2D ==================================================================
+// @Texture =================================================================================
 
-R_Texture2D r_create_texture2d(void);
+R_Texture2D r_create_texture2d(const i8 *path);
+void r_bind_texture2d(R_Texture2D *texture);
+void r_unbind_texture2d(void);
+void r_gen_texture2d(R_Texture2D *texture);
 
-// @Draw =======================================================================
+// @Draw ====================================================================================
 
 void r_clear(Vec4F color);
 void r_draw(R_Object *vertex_array, R_Shader *shader);

@@ -1,6 +1,3 @@
-// https://learnopengl.com/Getting-started
-
-#include <stdio.h>
 #include <SDL2/SDL.h>
 
 #include "glad/glad.h"
@@ -10,20 +7,15 @@
 #include "shaders.h"
 #include "render.h"
 
+#define DEBUG
+// #define LOG_PERF
+
 typedef struct State State;
 struct State
 {
-  b8 running;
-  b8 first_frame;
+  bool running;
+  bool first_frame;
 };
-
-// #define DEBUG
-// #define LOG_PERF
-
-#define CENTERED SDL_WINDOWPOS_CENTERED
-#define WIDTH 800
-#define HEIGHT 450
-#define FLAGS SDL_WINDOW_OPENGL
 
 static void set_gl_attributes(void);
 static void handle_input(State *state, SDL_Event *event);
@@ -41,7 +33,6 @@ i32 main(void)
   window = SDL_CreateWindow("OPENGL", CENTERED, CENTERED, WIDTH, HEIGHT, FLAGS);
   context = SDL_GL_CreateContext(window);
   SDL_GL_MakeCurrent(window, context);
-  
   SDL_GL_SetSwapInterval(VSYNC_OFF);
 
   gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
@@ -66,11 +57,11 @@ i32 main(void)
   r_create_vertex_buffer(vertices, sizeof (vertices));
   r_create_index_buffer(indices, sizeof (indices));
 
-  R_Layout vert_pos_layout = r_add_vertex_layout(&vert_arr, GL_FLOAT, 3);
-  r_set_vertex_layout(&vert_pos_layout);
+  R_VertexLayout vert_pos_layout = r_create_vertex_layout(&vert_arr, GL_FLOAT, 3);
+  r_bind_vertex_layout(&vert_pos_layout);
   
-  R_Layout vert_col_layout = r_add_vertex_layout(&vert_arr, GL_FLOAT, 3);
-  r_set_vertex_layout(&vert_col_layout);
+  R_VertexLayout vert_col_layout = r_create_vertex_layout(&vert_arr, GL_FLOAT, 3);
+  r_bind_vertex_layout(&vert_col_layout);
 
   state.running = TRUE;
   state.first_frame = TRUE;
@@ -95,10 +86,14 @@ i32 main(void)
     // Update
     u64 t = SDL_GetTicks64();
 
+    // Object 1
     Mat3x3F sprite = m3x3f(1.0f);
-    sprite = mul_3x3f(scale_3x3f(1.0f, 1.0f), sprite);
     sprite = mul_3x3f(shear_3x3f(sin(t * 0.005f), cos(t * 0.005f)), sprite);
     sprite = mul_3x3f(rotate_3x3f(t * 0.05f), sprite);
+
+    // Object 2
+    Mat3x3F sprite2 = m3x3f(1.0f);
+    sprite2 = mul_3x3f(translate_3x3f(200.0f, 100.0f), sprite2);
 
     Mat3x3F camera = m3x3f(1.0f);
     camera = mul_3x3f(translate_3x3f(WIDTH/2.0f, HEIGHT/2.0f), camera);
@@ -106,12 +101,17 @@ i32 main(void)
     Mat3x3F projection = m3x3f(1.0f);
     projection = mul_3x3f(orthographic_3x3f(0.0f, WIDTH, 0.0f, HEIGHT), projection);
 
-    Mat3x3F scp = mul_3x3f(mul_3x3f(projection, camera), sprite);
-    r_bind_shader(&shader);
-    r_set_uniform_3x3f(&shader, "u_xform", scp);
-
     // Draw
     r_clear(v4f(0.1f, 0.1f, 0.1f, 1.0f));
+
+    // Object 1
+    Mat3x3F scp = mul_3x3f(mul_3x3f(projection, camera), sprite);
+    r_set_uniform_3x3f(&shader, "u_xform", scp);
+    r_draw(&vert_arr, &shader);
+    
+    // Object 2
+    Mat3x3F scp2 = mul_3x3f(mul_3x3f(projection, camera), sprite2);
+    r_set_uniform_3x3f(&shader, "u_xform", scp2);
     r_draw(&vert_arr, &shader);
 
     // Swap front and back buffers of window

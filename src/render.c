@@ -1,8 +1,6 @@
-#include <stdio.h>
 #include <SDL2/SDL.h>
 
 #include "glad/glad.h"
-
 #define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
@@ -11,9 +9,14 @@
 #include "base_math.h"
 #include "render.h"
 
+typedef R_Shader Shader;
+typedef R_Texture2D Texture2D;
+typedef R_Object Object;
+typedef R_VertexLayout VertexLayout;
+
 static void r_verify_shader(u32 id, GLenum type);
 
-b8 _r_check_error(void)
+bool _r_check_error(void)
 {
   for (u32 err = -1; (err = glGetError());)
   {
@@ -29,9 +32,9 @@ void _r_clear_error(void)
   while (glGetError() != GL_NO_ERROR);
 }
 
-// @Shader =====================================================================
+// @Shader ==================================================================================
 
-R_Shader r_create_shader(const i8 *vert_src, const i8 *frag_src)
+Shader r_create_shader(const i8 *vert_src, const i8 *frag_src)
 {
   u32 vert = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vert, 1, &vert_src, NULL);
@@ -58,11 +61,11 @@ R_Shader r_create_shader(const i8 *vert_src, const i8 *frag_src)
   glDeleteShader(vert);
   glDeleteShader(frag);
 
-  return (R_Shader) {id};
+  return (Shader) {id};
 }
 
 inline
-void r_bind_shader(R_Shader *shader)
+void r_bind_shader(Shader *shader)
 {
   R_ASSERT(glUseProgram(shader->id));
 }
@@ -73,7 +76,7 @@ void r_unbind_shader(void)
   glUseProgram(0);
 }
 
-i32 r_set_uniform_1u(R_Shader *shader, i8 *name, u32 val)
+i32 r_set_uniform_1u(Shader *shader, i8 *name, u32 val)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform1ui(loc, val);
@@ -81,7 +84,7 @@ i32 r_set_uniform_1u(R_Shader *shader, i8 *name, u32 val)
   return loc;
 }
 
-i32 r_set_uniform_1(R_Shader *shader, i8 *name, i32 val)
+i32 r_set_uniform_1(Shader *shader, i8 *name, i32 val)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform1i(loc, val);
@@ -89,7 +92,7 @@ i32 r_set_uniform_1(R_Shader *shader, i8 *name, i32 val)
   return loc;
 }
 
-i32 r_set_uniform_1f(R_Shader *shader, i8 *name, f32 val)
+i32 r_set_uniform_1f(Shader *shader, i8 *name, f32 val)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform1f(loc, val);
@@ -97,7 +100,7 @@ i32 r_set_uniform_1f(R_Shader *shader, i8 *name, f32 val)
   return loc;
 }
 
-i32 r_set_uniform_2f(R_Shader *shader, i8 *name, Vec2F vec)
+i32 r_set_uniform_2f(Shader *shader, i8 *name, Vec2F vec)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform2f(loc, vec.x, vec.y);
@@ -105,7 +108,7 @@ i32 r_set_uniform_2f(R_Shader *shader, i8 *name, Vec2F vec)
   return loc;
 }
 
-i32 r_set_uniform_3f(R_Shader *shader, i8 *name, Vec3F vec)
+i32 r_set_uniform_3f(Shader *shader, i8 *name, Vec3F vec)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform3f(loc, vec.x, vec.y, vec.z);
@@ -113,7 +116,7 @@ i32 r_set_uniform_3f(R_Shader *shader, i8 *name, Vec3F vec)
   return loc;
 }
 
-i32 r_set_uniform_4f(R_Shader *shader, i8 *name, Vec4F vec)
+i32 r_set_uniform_4f(Shader *shader, i8 *name, Vec4F vec)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform4f(loc, vec.x, vec.y, vec.z, vec.w);
@@ -121,7 +124,7 @@ i32 r_set_uniform_4f(R_Shader *shader, i8 *name, Vec4F vec)
   return loc;
 }
 
-i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4x4F mat)
+i32 r_set_uniform_4x4f(Shader *shader, i8 *name, Mat4x4F mat)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniformMatrix4fv(loc, 1, FALSE, &mat.elements[0][0]);
@@ -129,7 +132,7 @@ i32 r_set_uniform_4x4f(R_Shader *shader, i8 *name, Mat4x4F mat)
   return loc;
 }
 
-i32 r_set_uniform_3x3f(R_Shader *shader, i8 *name, Mat3x3F mat)
+i32 r_set_uniform_3x3f(Shader *shader, i8 *name, Mat3x3F mat)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniformMatrix3fv(loc, 1, FALSE, &mat.elements[0][0]);
@@ -169,9 +172,9 @@ void r_verify_shader(u32 id, GLenum type)
   }
 }
 
-// @Buffer =====================================================================
+// @Buffer ==================================================================================
 
-R_Object r_create_vertex_buffer(void *data, u32 size)
+Object r_create_vertex_buffer(void *data, u32 size)
 {
   u32 id;
   glGenBuffers(1, &id);
@@ -179,11 +182,11 @@ R_Object r_create_vertex_buffer(void *data, u32 size)
   glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
   // glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-  return (R_Object) {id, 0, 0};
+  return (Object) {id, 0, 0};
 }
 
 inline
-void r_bind_vertex_buffer(R_Object *buffer)
+void r_bind_vertex_buffer(Object *buffer)
 {
   glBindBuffer(GL_ARRAY_BUFFER, buffer->id);
 }
@@ -194,7 +197,7 @@ void r_unbind_vertex_buffer(void)
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-R_Object r_create_index_buffer(void *data, u32 size)
+Object r_create_index_buffer(void *data, u32 size)
 {
   u32 id;
   glGenBuffers(1, &id);
@@ -202,11 +205,11 @@ R_Object r_create_index_buffer(void *data, u32 size)
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
   // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-  return (R_Object) {id, 0, 0};
+  return (Object) {id, 0, 0};
 }
 
 inline
-void r_bind_index_buffer(R_Object *buffer)
+void r_bind_index_buffer(Object *buffer)
 {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->id);
 }
@@ -217,19 +220,19 @@ void r_unbind_index_buffer(void)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-// @VertexArray ================================================================
+// @VertexArray =============================================================================
 
-R_Object r_create_vertex_array(u8 attrib_count)
+Object r_create_vertex_array(u8 attrib_count)
 {
   u32 id;
   R_ASSERT(glGenVertexArrays(1, &id));
   R_ASSERT(glBindVertexArray(id));
 
-  return (R_Object) {id, attrib_count, 0};
+  return (Object) {id, attrib_count, 0};
 }
 
 inline
-void r_bind_vertex_array(R_Object *vertex_array)
+void r_bind_vertex_array(Object *vertex_array)
 {
   R_ASSERT(glBindVertexArray(vertex_array->id));
 }
@@ -240,8 +243,9 @@ void r_unbind_vertex_array(void)
   glBindVertexArray(0);
 }
 
-R_Layout r_add_vertex_layout(R_Object *vertex_array, GLenum type, u32 count)
+VertexLayout r_create_vertex_layout(Object *v_arr, GLenum type, u32 count)
 {
+  // u8 type_size = sizeof (typeof (type));
   u8 type_size = 1;
   switch (type)
   {
@@ -252,22 +256,22 @@ R_Layout r_add_vertex_layout(R_Object *vertex_array, GLenum type, u32 count)
     default: ASSERT(FALSE);
   }
 
-  R_Layout layout = 
+  VertexLayout layout = 
   {
-    .index = vertex_array->attrib_index,
+    .index = v_arr->attrib_index,
     .count = count,
     .data_type = type,
     .normalized = FALSE,
-    .stride = count * vertex_array->attrib_count * type_size,
-    .first = (void *) (u64) (vertex_array->attrib_index * count * type_size)
+    .stride = count * v_arr->attrib_count * type_size,
+    .first = (void *) (u64) (v_arr->attrib_index * count * type_size)
   };
 
-  vertex_array->attrib_index++;
+  v_arr->attrib_index++;
 
   return layout;
 }
 
-void r_set_vertex_layout(R_Layout *layout)
+void r_bind_vertex_layout(VertexLayout *layout)
 {
   R_ASSERT(glVertexAttribPointer(
                                  layout->index,
@@ -280,11 +284,45 @@ void r_set_vertex_layout(R_Layout *layout)
   R_ASSERT(glEnableVertexAttribArray(layout->index));
 }
 
-// @Texture2D ==================================================================
+// @Texture2D =============================================================================================
 
+Texture2D r_load_texture2d(const i8 *path)
+{
+  Texture2D tex = {0};
+  glGenTextures(1, &tex.id);
+  tex.data = stbi_load(path, &tex.width, &tex.height, &tex.num_channels, 0);
 
+  return tex;
+}
 
-// @Draw =======================================================================
+inline
+void r_bind_texture2d(Texture2D *texture)
+{
+  glBindTexture(GL_TEXTURE_2D, texture->id);
+}
+
+inline
+void r_unbind_texture2d(void)
+{
+  glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void r_gen_textured2(Texture2D *texture)
+{
+  glTexImage2D(
+               GL_TEXTURE_2D, 
+               0, 
+               GL_RGB, 
+               texture->width, 
+               texture->height, 
+               0, 
+               GL_RGB, 
+               GL_UNSIGNED_BYTE, 
+               texture->data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+// @Draw ====================================================================================
 
 void r_clear(Vec4F color)
 {
@@ -292,11 +330,9 @@ void r_clear(Vec4F color)
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void r_draw(R_Object *vertex_array, R_Shader *shader)
+void r_draw(Object *vertex_array, Shader *shader)
 {
   r_bind_shader(shader);
   r_bind_vertex_array(vertex_array);
   R_ASSERT(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL));
-  // r_unbind_vertex_array();
-  // r_unbind_shader();
 }
