@@ -1,3 +1,4 @@
 -I/usr/local/Cellar/sdl2/2.28.2/include
 -I/usr/local/Cellar/glfw/3.3.8/include
 -Ilib
+-std=c17

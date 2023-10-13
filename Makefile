@@ -16,12 +16,13 @@ SRC = src/main.c \
 			src/base_math.c \
 			src/render.c
 
-.PHONY: all compile compile_t run test debug
+.PHONY: all compile compile_t run test debug combine
 
 all: compile run
 
 compile:
 	@echo "Compiling project..."
+	@./ParseShaders
 	@$(CC) $(CFLAGS) $(LDFLAGS) $(LIB) $(SRC) -o $(NAME)
 	@echo "Compilation complete!"
 
@@ -43,3 +44,6 @@ debug:
 	@cd debug; \
 	$(CC) -I../lib/ $(LDFLAGS) ../lib/glad/glad.c ../src/*.c -g
 	@echo "Compilation complete!"
+
+combine: $(SRC)
+	cat $^ > project.c

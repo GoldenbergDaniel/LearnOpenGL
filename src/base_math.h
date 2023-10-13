@@ -2,9 +2,7 @@
 
 #include "base_common.h"
 
-// Base Math ================================================================================
-
-#define PI 3.141592
+#define PI 3.14159265359
 
 typedef union Vec2F Vec2F;
 union Vec2F
@@ -57,7 +55,7 @@ struct Mat4x4F
   f32 elements[4][4];
 };
 
-// @Vector2 =================================================================================
+// @Vec2F ===================================================================================
 
 #define V2F_ZERO ((Vec2F) {0.0f, 0.0f})
 
@@ -79,7 +77,7 @@ Vec2F normalize_2f(Vec2F a);
 
 Vec2F lerp_2f(Vec2F curr, Vec2F target, f32 rate);
 
-// @Vector3 =================================================================================
+// @Vec3F ===================================================================================
 
 #define V3F_ZERO ((Vec3F) {0.0f, 0.0f, 0.0f})
 
@@ -102,7 +100,7 @@ Vec3F normalize_3f(Vec3F v);
 
 Vec3F lerp_3f(Vec3F curr, Vec3F target, f32 rate);
 
-// @Vector4 =================================================================================
+// @Vec4F ===================================================================================
 
 #define V4F_ZERO ((Vec4F) {0.0f, 0.0f, 0.0f, 0.0f})
 
@@ -122,7 +120,7 @@ f32 distance_4f(Vec4F a, Vec4F b);
 f32 distance_squared_4f(Vec4F a, Vec4F b);
 Vec4F normalize_4f(Vec4F v);
 
-// @Matrix3x3 ===============================================================================
+// @Mat3x3F =================================================================================
 
 Mat3x3F m3x3f(f32 k);
 
@@ -139,9 +137,7 @@ Mat3x3F shear_3x3f(f32 x_shear, f32 y_shear);
 
 Mat3x3F orthographic_3x3f(f32 left, f32 right, f32 bot, f32 top);
 
-void _print_3x3f(Mat3x3F matrix);
-
-// @Matrix4x4 ===============================================================================
+// @Mat4x4F =================================================================================
 
 Mat4x4F m4x4f(f32 k);
 
@@ -158,8 +154,6 @@ Mat4x4F scale_4x4f(f32 x_scale, f32 y_scale, f32 z_scale);
 Mat4x4F shear_4x4f(f32 x_shear, f32 y_shear, f32 z_shear);
 
 Mat4x4F orthographic_4x4f(f32 left, f32 right, f32 bot, f32 top);
-
-void _print_4x4f(Mat4x4F matrix);
 
 #ifdef __cplusplus
 

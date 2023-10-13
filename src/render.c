@@ -1,8 +1,7 @@
 #include <SDL2/SDL.h>
-
 #include "glad/glad.h"
-#define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG
 #include "stb/stb_image.h"
 
 #include "base_common.h"
@@ -10,21 +9,23 @@
 #include "render.h"
 
 typedef R_Shader Shader;
-typedef R_Texture2D Texture2D;
 typedef R_Object Object;
+typedef R_Texture2D Texture2D;
 typedef R_VertexLayout VertexLayout;
 
 static void r_verify_shader(u32 id, GLenum type);
 
 bool _r_check_error(void)
 {
+  bool error = FALSE;
+
   for (u32 err = -1; (err = glGetError());)
   {
     printf("[OpenGL Error]: %u\n", err);
-    return TRUE;
+    error = TRUE;
   }
 
-  return FALSE;
+  return error;
 }
 
 void _r_clear_error(void)
@@ -39,14 +40,13 @@ Shader r_create_shader(const i8 *vert_src, const i8 *frag_src)
   u32 vert = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vert, 1, &vert_src, NULL);
   glCompileShader(vert);
-  #ifdef DEBUG
-  r_verify_shader(vert, GL_COMPILE_STATUS);
-  #endif
 
   u32 frag = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(frag, 1, &frag_src, NULL);
   glCompileShader(frag);
+
   #ifdef DEBUG
+  r_verify_shader(vert, GL_COMPILE_STATUS);
   r_verify_shader(frag, GL_COMPILE_STATUS);
   #endif
 
@@ -54,6 +54,7 @@ Shader r_create_shader(const i8 *vert_src, const i8 *frag_src)
   glAttachShader(id, frag);
   glAttachShader(id, vert);
   glLinkProgram(id);
+
   #ifdef DEBUG
   r_verify_shader(id, GL_LINK_STATUS);
   #endif
@@ -88,7 +89,6 @@ i32 r_set_uniform_1(Shader *shader, i8 *name, i32 val)
 {
   i32 loc = glGetUniformLocation(shader->id, name);
   glUniform1i(loc, val);
-  
   return loc;
 }
 
@@ -180,7 +180,6 @@ Object r_create_vertex_buffer(void *data, u32 size)
   glGenBuffers(1, &id);
   glBindBuffer(GL_ARRAY_BUFFER, id);
   glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-  // glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   return (Object) {id, 0, 0};
 }
@@ -203,7 +202,6 @@ Object r_create_index_buffer(void *data, u32 size)
   glGenBuffers(1, &id);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   return (Object) {id, 0, 0};
 }
@@ -245,14 +243,13 @@ void r_unbind_vertex_array(void)
 
 VertexLayout r_create_vertex_layout(Object *v_arr, GLenum type, u32 count)
 {
-  // u8 type_size = sizeof (typeof (type));
   u8 type_size = 1;
   switch (type)
   {
-    case GL_BYTE: {type_size = sizeof (i8);} break;
-    case GL_SHORT: {type_size = sizeof (i16);} break;
-    case GL_INT: {type_size = sizeof (i32);} break;
-    case GL_FLOAT: {type_size = sizeof (f32);} break;
+    case GL_BYTE:  type_size = sizeof (i8);  break;
+    case GL_SHORT: type_size = sizeof (i16); break;
+    case GL_INT:   type_size = sizeof (i32); break;
+    case GL_FLOAT: type_size = sizeof (f32); break;
     default: ASSERT(FALSE);
   }
 
@@ -284,7 +281,7 @@ void r_bind_vertex_layout(VertexLayout *layout)
   R_ASSERT(glEnableVertexAttribArray(layout->index));
 }
 
-// @Texture2D =============================================================================================
+// @Texture2D ===============================================================================
 
 Texture2D r_load_texture2d(const i8 *path)
 {
@@ -319,6 +316,7 @@ void r_gen_textured2(Texture2D *texture)
                GL_RGB, 
                GL_UNSIGNED_BYTE, 
                texture->data);
+
   glGenerateMipmap(GL_TEXTURE_2D);
 }
 

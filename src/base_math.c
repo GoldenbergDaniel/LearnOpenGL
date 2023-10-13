@@ -1,14 +1,9 @@
-#include <stdio.h>
 #include <math.h>
 
 #include "base_common.h"
 #include "base_math.h"
 
-// @Vector2 =================================================================================
-
-#define add(x, y) _Generic((x)+(y) \
-        int: x+y\
-        )((x), (y))
+// @Vec2F ===================================================================================
 
 inline
 Vec2F v2f(f32 x, f32 y)
@@ -99,7 +94,7 @@ Vec2F lerp_2f(Vec2F curr, Vec2F target, f32 rate)
   return scale_2f(sub_2f(target, curr), rate);
 }
 
-// @Vector3 =================================================================================
+// @Vec3F ===================================================================================
 
 inline
 Vec3F v3f(f32 x, f32 y, f32 z)
@@ -205,7 +200,7 @@ Vec3F lerp_3f(Vec3F curr, Vec3F target, f32 rate)
   return scale_3f(sub_3f(target, curr), rate);
 }
 
-// @Vector4 =================================================================================
+// @Vec4F ===================================================================================
 
 inline
 Vec4F v4f(f32 x, f32 y, f32 z, f32 w)
@@ -252,7 +247,7 @@ Vec4F scale_4f(Vec4F v, f32 scale)
 Vec4F transform_4f(Vec4F v, Mat4x4F m)
 {
   Vec4F result = {0};
-  \
+
   for (u8 c = 0; c < 4; c++)
   {
     result.x += m.elements[0][c] * v.elements[c];
@@ -296,7 +291,7 @@ Vec4F normalize_4f(Vec4F v)
   return scale_4f(v, 1.0f / magnitude_4f(v));
 }
 
-// @Matrix3x3 ===============================================================================
+// @Mat3x3F =================================================================================
 
 inline
 Mat3x3F m3x3f(f32 k)
@@ -417,20 +412,7 @@ Mat3x3F orthographic_3x3f(f32 left, f32 right, f32 bot, f32 top)
   return result;
 }
 
-void _print_3x3f(Mat3x3F matrix)
-{
-  for (u8 r = 0; r < 3; r++)
-  {
-    for (u8 c = 0; c < 3; c++)
-    {
-      printf("%.4f ", matrix.elements[r][c]);
-    }
-
-    printf("\n");
-  }
-}
-
-// @Matrix4x4f ==============================================================================
+// @Mat4x4F =================================================================================
 
 inline
 Mat4x4F m4x4f(f32 k)
@@ -533,8 +515,8 @@ Mat4x4F scale_4x4f(f32 x_scale, f32 y_scale, f32 z_scale)
 
 Mat4x4F orthographic_4x4f(f32 left, f32 right, f32 bot, f32 top)
 {
-  f32 near = -1.0f;
-  f32 far = 1.0f;
+  const f32 near = -1.0f;
+  const f32 far = 1.0f;
 
   Mat4x4F result = {0};
   result.elements[0][0] = 2.0f / (right - left);
@@ -546,19 +528,6 @@ Mat4x4F orthographic_4x4f(f32 left, f32 right, f32 bot, f32 top)
   result.elements[3][3] = 1.0f;
 
   return result;
-}
-
-void _print_4x4f(Mat4x4F matrix)
-{
-  for (u8 r = 0; r < 4; r++)
-  {
-    for (u8 c = 0; c < 4; c++)
-    {
-      printf("%.4f ", matrix.elements[r][c]);
-    }
-
-    printf("\n");
-  }
 }
 
 #ifdef __cplusplus

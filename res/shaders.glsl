@@ -19,7 +19,10 @@ void main()
 in vec3 color;
 out vec4 frag_color;
 
+uniform vec4 u_color;
+
 void main()
 {
-  frag_color = vec4(color, 1.0);
+  vec4 final_color = u_color + vec4(color, 1.0);
+  frag_color = final_color;
 }
